@@ -1,13 +1,77 @@
-html>
-    <head>
-        <meta charset="utf-8">
-        <link rel="stylesheet" href="...css/index.css">
-    </head>
-    <body>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
+    <script type="text/javascript">
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAn10IlIPiXj0NLw7xv73aX60wg4OBftYw",
+            authDomain: "computer-ia-1ffb0.firebaseapp.com",
+            projectId: "computer-ia-1ffb0",
+            storageBucket: "computer-ia-1ffb0.appspot.com",
+            messagingSenderId: "432604412975",
+            appId: "1:432604412975:web:954d2832af5279c6d01ada"
+        };
+
+        var app = firebase.initializeApp(firebaseConfig);
+        initApp = function () {
+            firebase.auth().onAuthStateChanged(function (user) {
+                if (user) {
+                    // User is signed in.
+                    var displayName = user.displayName;
+                    var email = user.email;
+                    var emailVerified = user.emailVerified;
+                    var photoURL = user.photoURL;
+                    var uid = user.uid;
+                    var phoneNumber = user.phoneNumber;
+                    var providerData = user.providerData;
+                    user.getIdToken().then(function (accessToken) {
+                        document.getElementById('sign-in-status').textContent = 'Signed in';
+                        document.getElementById('sign-in').textContent = 'Sign out';
+                        document.getElementById('account-details').textContent = JSON.stringify({
+                            displayName: displayName,
+                            email: email,
+                            emailVerified: emailVerified,
+                            phoneNumber: phoneNumber,
+                            photoURL: photoURL,
+                            uid: uid,
+                            accessToken: accessToken,
+                            providerData: providerData
+                        }, null, '  ');
+                    });
+                } else {
+                    // User is signed out.
+                    document.getElementById('sign-in-status').textContent = 'Signed out';
+                    document.getElementById('sign-in').textContent = 'Sign in';
+                    document.getElementById('account-details').textContent = 'null';
+                }
+            }, function (error) {
+                console.log(error);
+            });
+        };
+
+        window.addEventListener('load', function () {
+            initApp()
+        });
+    </script>
+    <script>
+        function saveData() {
+        }
+    </script>
+</head>
+
+<body>
+    <main>
         <div class="headNav">
-            <a><p>Study Session</p></a>
-            <a><p>Notes</p></a>
-            <a><p>Weekly Plan</p></a>
+            <span class="material-symbols-outlined">menu</span>
+            <a>Study Session</a>
+            <a>Notes</a>
+            <a>Weekly Plan</a>
             <div class="user-details">
                 <p>Username: </p>
                 <p>Points Scored: </p>
@@ -15,29 +79,43 @@ html>
             </div>
         </div>
 
+        <!-- <div id="sign-in-status"></div>
+    <div id="sign-in"></div>
+    <pre id="account-details"></pre> -->
         <div class="sideBar">
             <h3>Subjects</h3>
-            <button>Add</button>
-            <button>Edit</button>
-            <button>Delete</button>
+            <button class="add">Add</button>
+            <button class="edit">Edit</button>
+            <button class="delete">Delete</button>
         </div>
 
         <div class="studySession">
-            <button>Add Study Session</button>
-            <form>
+
+            <button class="studySessAdd">Add Study Session</button>
+
+            <form class="studyForm">
                 <h3>New Study Session</h3>
                 <h4>Subject</h4>
-                <input>
+                <input id="subject" placeholder="subject">
                 <h4>Time Allotted</h4>
-                <input>
+                <div class="timer">
+                    <input type="number" id="hours" min="0" max="12" step="1" value="0">
+                    <span>h :</span>
+                    <input type="number" id="minutes" min="0" max="60" step="1" value="0">
+                    <span>m</span>
+                </div>
                 <h4>Priority</h4>
-                <input>
+                <select name="priority" id="priority">
+                    <option>High</option>
+                    <option>Medium</option>
+                    <option>Low</option>
+                </select>
                 <button>Cancel</button>
-                <button>Save Changes</button>
+                <input id="submit" type="submit" value="Save Session">
                 <button>Add New Session</button>
             </form>
 
-            <table>
+            <table class="table">
                 <tr>
                     <th>Subject</th>
                     <th>Completion Status</th>
@@ -49,6 +127,8 @@ html>
             <button>Delete Record</button>
             <button>Edit Record</button>
         </div>
-        <script src="...js/index.js"></script>
-    </body>
+    </main>
+    <script src="index.js"></script>
+</body>
+
 </html>
