@@ -10,7 +10,7 @@ let seconds = document.querySelector('#seconds');
 let secTenth = document.querySelector('#secTenth');
 
 form.addEventListener('submit', (e) => {
-    submit();
+    submit(e);
     e.preventDefault();
 })
 
@@ -24,31 +24,25 @@ timer.addEventListener('secondTenthsUpdated', () => {
     secTenth.innerText = obj.secondTenths.toString().padStart(2, '0');
 })
 
-startBtn.addEventListener('click', () => {
-    timer.start({
-        precision: 'secondTenths'
-    })
+document.addEventListener('click', (e) => {
+    if (e.target.matches('#startBtn')) {
+        timer.start({ precision: 'secondTenths' })
+    }
+    if (e.target.matches('#pauseBtn')) {
+        timer.pause()
+    }
+    if (e.target.matches('#resetBtn')) {
+        timer.stop()
+    }
 })
 
-pauseBtn.addEventListener('click', () => {
-    timer.pause()
-})
-
-resetBtn.addEventListener('click', () => {
-    timer.stop()
-})
-
-const submit = () => {
-    let subjects = document.querySelector('#subjects-form');
-    let priorities = document.querySelector('#priority');
-    let stime = document.querySelector('#stime').value;
-    let ftime = document.querySelector('#ftime').value;
-    let subject = subjects.options[subjects.selectedIndex].text;
-    let priority = priorities.options[priorities.selectedIndex].text;
+const submit = (e) => {
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
     const row = document.createElement('tr');
     let progress=' <div class="timerInfo row"><h3 class="col" id="hours">00</h3><h3 class="col" id="minutes">00</h3><h3 class="col" id="seconds">00</h3><h3 class="col" id="secTenth">00</h3></div><div class="buttons"><button class="btn" id="startBtn">Start</button><button class="btn" id="pauseBtn">Pause</button><button class="btn" id="resetBtn">Reset</button></div>';
     let quality = '<div><select id="priority" class="form-select" required aria-label="Disabled select example" disabled><option value="">Quality</option><option value="1">Great!</option><option value="2">Moderate</option><option value="3">Bad</option></select><div class="invalid-feedback">Example invalid select feedback</div></div>';
-    let val = [subject, stime + '-' + ftime, priority, progress, quality];
+    let val = [data.subject, data.stime + '-' + data.ftime, data.priority, progress, quality];
     val.forEach((item) => {
         var cell = document.createElement('td');
         // var text = document.createTextNode(item);
@@ -56,5 +50,17 @@ const submit = () => {
         row.appendChild(cell);
         table.appendChild(row);
     })
+
+    db.collection("users")
+      .doc(uid)
+      .collection("subjects")
+      .add(data)
+      .then((docRef) => {
+        console.log("Document written with ID: ", docRef.id);
+      })
+      .catch((error) => {
+        console.error("Error adding document: ", error);
+      });
+
     form.reset();
 }
