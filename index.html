@@ -108,56 +108,11 @@
         </div>
     </nav>
 
-    <div class="container text-center">
-        <!-- <div class="row align-items-start">
-            <div class="col d-flex flex-column flex-shrink-0 p-3 bg-body-tertiary"
-                style="width: 280px; max-width: 300px;">
-                <a href="/"
-                    class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
-                    <svg class="bi pe-none me-2" width="40" height="32">
-                        <use xlink:href="#bootstrap"></use>
-                    </svg>
-                    <span class="fs-4">Subjects</span>
-                </a>
-                <hr>
-                <ul class="nav nav-pills flex-column mb-auto">
-                    <li>
-                        <a href="#" class="nav-link link-body-emphasis">
-                            <svg class="bi pe-none me-2" width="16" height="16">
-                                <use xlink:href="#speedometer2"></use>
-                            </svg>
-                            Maths
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="nav-link link-body-emphasis">
-                            <svg class="bi pe-none me-2" width="16" height="16">
-                                <use xlink:href="#table"></use>
-                            </svg>
-                            Physics
-                        </a>
-                    </li>
-                </ul>
-                <hr>
-            </div>
-
-             <div class="timerInfo row">
-            <h3 class="col" id="hours">00</h3>
-            <h3 class="col" id="minutes">00</h3>
-            <h3 class="col" id="seconds">00</h3>
-            <h3 class="col" id="secTenth">00</h3>
-        </div>
-        <div class="buttons">
-            <button class="btn" id="startBtn">Start</button>
-            <button class="btn" id="pauseBtn">Pause</button>
-            <button class="btn" id="resetBtn">Reset</button>
-        </div>
-            -->
-        <br><br>
+    <div class="container text-center py-5">
         <div class="col">
             <form class="row g-3 studyForm">
                 <div class="mb-3">
-                    <div class="row justify-content-around">
+                    <div class="row justify-content-around py-3">
                         <div class="col">
                             <input id="subjectName" type="text" class="form-control" placeholder="Subject name"
                                 aria-label="subject name">
@@ -168,7 +123,6 @@
                                 subject</button>
                         </div>
                     </div>
-                    <br>
 
                     <select id='subjects-form' class="form-select" required aria-label="select example">
                         <option value="">Choose a Subject</option>
@@ -188,7 +142,7 @@
                     </div>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-3 py-3">
                     <label for="validationCustomUsername" class="form-label">Ending time</label>
                     <div class="input-group has-validation">
                         <input id='ftime' type="time" class="form-control" id="validationCustomUsername"
@@ -198,7 +152,6 @@
                         </div>
                     </div>
                 </div>
-                <br>
 
                 <div class="mb-3">
                     <select id='priority' class="form-select" required aria-label="select example">
@@ -215,10 +168,10 @@
                 </div>
             </form>
 
-            <br>
-            <br>
-            <input class="form-control" id="myInput" type="text" placeholder="Search..">
-            <br>
+            <div class="py-3">
+                <input class="form-control" id="myInput" type="text" placeholder="Search..">
+            </div>
+
             <table class="table" id="table">
                 <thead>
                     <tr>
