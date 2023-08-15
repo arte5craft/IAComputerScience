@@ -69,10 +69,7 @@ table {
     border: 1px solid black;
 }
 
-.studyForm {
-    opacity: 0;
-}
-
-.active {
-    opacity: 1;
+button.stop_button {
+    background: red !important;
+    border: none;
 }
