@@ -36,7 +36,6 @@
                     var phoneNumber = user.phoneNumber;
                     var providerData = user.providerData;
                     user.getIdToken().then(function (accessToken) {
-                        document.getElementById("sign-in-status").textContent = "Signed in";
                         document.getElementById("user-name").textContent = displayName;
                         document.getElementById("user-email").textContent = email;
                         db.collection("users").doc(uid).collection("schedules").get().then((docs) => {
@@ -81,9 +80,7 @@
                     });
                 } else {
                     // User is signed out.
-                    document.getElementById("sign-in-status").textContent = "Signed out";
-                    document.getElementById("sign-in").textContent = "Sign in";
-                    document.getElementById("account-details").textContent = "null";
+                    document.location.href = "./login.html";
                 }
             }, function (error) {
                 notify("text-bg-danger", error);
@@ -107,30 +104,6 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            User Details
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <div id="sign-in-status"></div>
-                            </li>
-                            <li>
-                                <div id="sign-in"></div>
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <ul id="account-details">
-                                    <span>Name: <p id="user-name"></p></span>
-                                    <span>Email: <p id="user-email"></p></span>
-                                </ul>
-                            </li>
-
-                        </ul>
-                    </li>
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="#">Study Session</a>
                     </li>
@@ -143,6 +116,18 @@
                     <li>
                         <a href="./login.html"><button class="btn btn-primary log-out">Log Out</button></a>
                     </li>
+                </ul>
+                <ul class="navbar-nav mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a id="user-name" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Username
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#">Sign out (<span id="user-email"></span>)</a></li>
+                        </ul>
+                    </li>
+                </ul>
+
             </div>
         </div>
     </nav>
