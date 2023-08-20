@@ -36,76 +36,61 @@
                     var phoneNumber = user.phoneNumber;
                     var providerData = user.providerData;
                     user.getIdToken().then(function (accessToken) {
-                        document.getElementById('sign-in-status').textContent = 'Signed in';
-                        document.getElementById('user-name').textContent = displayName;
-                        document.getElementById('user-email').textContent = email;
-                        /*document.getElementById('sign-in').textContent = 'Sign out';*/
-                        /*document.getElementById('account-details').textContent = JSON.stringify({
-                            displayName: displayName,
-                            email: email,
-                            emailVerified: emailVerified,
-                            phoneNumber: phoneNumber,
-                            photoURL: photoURL,
-                            uid: uid,
-                            accessToken: accessToken,
-                            providerData: providerData
-                        }, null, '  ');*/
+                        document.getElementById("sign-in-status").textContent = "Signed in";
+                        document.getElementById("user-name").textContent = displayName;
+                        document.getElementById("user-email").textContent = email;
                         db.collection("users").doc(uid).collection("schedules").get().then((docs) => {
                             docs.forEach((doc) => {
                                 console.log(doc.id, " => ", doc.data());
                             });
                         });
 
-                        db.collection("users").doc(uid).collection("subjects").doc('list').get().then((doc) => {
+                        var options = [];
+                        db.collection("users").doc(uid).collection("subjects").doc("list").get().then((doc) => {
                             if (doc.exists) {
-                                var options = Object.values(doc.data());
-                                var select = "<option value=''>Choose a Subject</option>";
-                                options.map((op, i) => {
-                                    select += `<option value="${op}">${op}</option>`
-                                })
+                                options = Object.values(doc.data());
+                                var select = ["", ...options].map((op) => `<option value="${op}">${op}</option>`).join("");
                                 document.getElementById("subjects-form").innerHTML = select;
-
-                                $("#addSubject").click(function () {
-                                    var value = $("#subjectName").val().toLowerCase();
-                                    var element = $("<option></option>").text(value);
-                                    if (options.includes(value) == false) {
-                                        $("#subjects-form").append(element);
-                                        options.push(value);
-                                        const obj = Object.assign({}, options);
-                                        db.collection("users")
-                                            .doc(uid)
-                                            .collection("subjects")
-                                            .doc('list')
-                                            .set(obj)
-                                            .then(() => {
-                                                console.log("Document written");
-                                            })
-                                            .catch((error) => {
-                                                console.error("Error adding document: ", error);
-                                            });
-                                    } else {
-                                        alert('already exists');
-                                    }
-                                });
-                            } else {
-                                console.log('no such doc');
                             }
                         }).catch((error) => {
-                            console.log('Error getting document: ', error);
+                            notify("text-bg-danger", "Error getting document: ", error);
                         })
+
+                        $("#addSubject").click(function () {
+                            var value = $("#subjectName").val();
+                            var element = $("<option></option>").text(value);
+                            if (options.includes(value) == false) {
+                                $("#subjects-form").append(element);
+                                options.push(value);
+                                const obj = Object.assign({}, options);
+                                db.collection("users")
+                                    .doc(uid)
+                                    .collection("subjects")
+                                    .doc("list")
+                                    .set(obj)
+                                    .then(() => {
+                                        notify("text-bg-success", "Subject saved");
+                                    })
+                                    .catch((error) => {
+                                        console.error("Error adding document: ", error);
+                                    });
+                            } else {
+                                notify("text-bg-danger", "already exists");
+                            }
+                        });
                     });
                 } else {
                     // User is signed out.
-                    document.getElementById('sign-in-status').textContent = 'Signed out';
-                    document.getElementById('sign-in').textContent = 'Sign in';
-                    document.getElementById('account-details').textContent = 'null';
+                    document.getElementById("sign-in-status").textContent = "Signed out";
+                    document.getElementById("sign-in").textContent = "Sign in";
+                    document.getElementById("account-details").textContent = "null";
                 }
             }, function (error) {
-                console.log(error);
+                notify("text-bg-danger", error);
             });
         };
 
-        window.addEventListener('load', function () {
+        window.addEventListener("load", function () {
             initApp()
         });
     </script>
@@ -178,7 +163,7 @@
                         </div>
                     </div>
 
-                    <select id='subjects-form' name="subject" class="form-select" required aria-label="select example">
+                    <select id="subjects-form" name="subject" class="form-select" required aria-label="select example">
                     </select>
 
                     <div class="invalid-feedback">Example invalid select feedback</div>
@@ -198,7 +183,7 @@
                 <div class="mb-3 py-3">
                     <label for="validationCustomUsername" class="form-label">Ending time</label>
                     <div class="input-group has-validation">
-                        <input id='ftime' name="ftime" type="time" class="form-control" id="validationCustomUsername"
+                        <input id="ftime" name="ftime" type="time" class="form-control" id="validationCustomUsername"
                             aria-describedby="inputGroupPrepend" required>
                         <div class="invalid-feedback">
                             Please choose a valid ending time.
@@ -207,7 +192,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <select id='priority' name="priority" class="form-select" required aria-label="select example">
+                    <select id="priority" name="priority" class="form-select" required aria-label="select example">
                         <option value="">Priority</option>
                         <option value="High">High</option>
                         <option value="Medium">Medium</option>
@@ -245,20 +230,31 @@
             </div>
         </div>
     </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header text-bg-danger">
+                <strong class="me-auto">Alert</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body"></div>
+        </div>
+    </div>
+
     <script>
         $(document).ready(function () {
             $("#myInput").on("keyup", function () {
-                var value = $(this).val().toLowerCase();
+                var value = $(this).val();
                 $("#tbody tr").filter(function () {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                    $(this).toggle($(this).text().indexOf(value) > -1)
                 });
             });
 
-            $('#start_timer_button').on('click', function (e) {
+            $("#start_timer_button").on("click", function (e) {
                 e.preventDefault();
                 $(this).text(function (_, text) {
-                    return text === 'stop' ? 'Start Timer' : 'stop';
-                }).toggleClass('stop_button');
+                    return text === "stop" ? "Start Timer" : "stop";
+                }).toggleClass("stop_button");
             });
         });
     </script>
@@ -268,6 +264,14 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
         crossorigin="anonymous"></script>
+    <script>
+        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(document.getElementById("liveToast"));
+        function notify(cls, message) {
+            document.querySelector(".toast-body").innerHTML = message;
+            document.querySelector(".toast-header").setAttribute("class",`toast-header ${cls}`);
+            toastBootstrap.show();
+        }
+    </script>
 </body>
 
 </html>
