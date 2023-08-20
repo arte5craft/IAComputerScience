@@ -12,7 +12,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script type="text/javascript">
-
         const firebaseConfig = {
             apiKey: "AIzaSyAn10IlIPiXj0NLw7xv73aX60wg4OBftYw",
             authDomain: "computer-ia-1ffb0.firebaseapp.com",
@@ -38,8 +37,10 @@
                     var providerData = user.providerData;
                     user.getIdToken().then(function (accessToken) {
                         document.getElementById('sign-in-status').textContent = 'Signed in';
-                        document.getElementById('sign-in').textContent = 'Sign out';
-                        document.getElementById('account-details').textContent = JSON.stringify({
+                        document.getElementById('user-name').textContent = displayName;
+                        document.getElementById('user-email').textContent = email;
+                        /*document.getElementById('sign-in').textContent = 'Sign out';*/
+                        /*document.getElementById('account-details').textContent = JSON.stringify({
                             displayName: displayName,
                             email: email,
                             emailVerified: emailVerified,
@@ -48,13 +49,50 @@
                             uid: uid,
                             accessToken: accessToken,
                             providerData: providerData
-                        }, null, '  ');
-                        db.collection("users").doc(uid).collection("subjects").get().then((docs) => {
+                        }, null, '  ');*/
+                        db.collection("users").doc(uid).collection("schedules").get().then((docs) => {
                             docs.forEach((doc) => {
-                                // doc.data() is never undefined for query doc snapshots
                                 console.log(doc.id, " => ", doc.data());
                             });
                         });
+
+                        db.collection("users").doc(uid).collection("subjects").doc('list').get().then((doc) => {
+                            if (doc.exists) {
+                                var options = Object.values(doc.data());
+                                var select = "<option value=''>Choose a Subject</option>";
+                                options.map((op, i) => {
+                                    select += `<option value="${op}">${op}</option>`
+                                })
+                                document.getElementById("subjects-form").innerHTML = select;
+
+                                $("#addSubject").click(function () {
+                                    var value = $("#subjectName").val().toLowerCase();
+                                    var element = $("<option></option>").text(value);
+                                    if (options.includes(value) == false) {
+                                        $("#subjects-form").append(element);
+                                        options.push(value);
+                                        const obj = Object.assign({}, options);
+                                        db.collection("users")
+                                            .doc(uid)
+                                            .collection("subjects")
+                                            .doc('list')
+                                            .set(obj)
+                                            .then(() => {
+                                                console.log("Document written");
+                                            })
+                                            .catch((error) => {
+                                                console.error("Error adding document: ", error);
+                                            });
+                                    } else {
+                                        alert('already exists');
+                                    }
+                                });
+                            } else {
+                                console.log('no such doc');
+                            }
+                        }).catch((error) => {
+                            console.log('Error getting document: ', error);
+                        })
                     });
                 } else {
                     // User is signed out.
@@ -100,8 +138,12 @@
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <pre id="account-details"></pre>
+                                <ul id="account-details">
+                                    <span>Name: <p id="user-name"></p></span>
+                                    <span>Email: <p id="user-email"></p></span>
+                                </ul>
                             </li>
+
                         </ul>
                     </li>
                     <li class="nav-item">
@@ -113,6 +155,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#">Notes</a>
                     </li>
+                    <li>
+                        <a href="./login.html"><button class="btn btn-primary log-out">Log Out</button></a>
+                    </li>
             </div>
         </div>
     </nav>
@@ -123,8 +168,8 @@
                 <div class="mb-3">
                     <div class="row justify-content-around py-3">
                         <div class="col">
-                            <input id="subjectName" name="subjectName" type="text" class="form-control" placeholder="Subject name"
-                                aria-label="subject name">
+                            <input id="subjectName" name="subjectName" type="text" class="form-control"
+                                placeholder="Subject name" aria-label="subject name">
                         </div>
                         <div class="col">
                             <button id="addSubject" type="button" class="btn btn-primary"
@@ -134,7 +179,6 @@
                     </div>
 
                     <select id='subjects-form' name="subject" class="form-select" required aria-label="select example">
-                        <option value="">Choose a Subject</option>
                     </select>
 
                     <div class="invalid-feedback">Example invalid select feedback</div>
@@ -165,9 +209,9 @@
                 <div class="mb-3">
                     <select id='priority' name="priority" class="form-select" required aria-label="select example">
                         <option value="">Priority</option>
-                        <option value="1">High</option>
-                        <option value="2">Medium</option>
-                        <option value="3">Low</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
                     </select>
                     <div class="invalid-feedback">Example invalid select feedback</div>
                 </div>
@@ -195,6 +239,10 @@
 
                 </tbody>
             </table>
+
+            <div id="countdownExample">
+                <div class="values"></div>
+            </div>
         </div>
     </div>
     <script>
@@ -206,20 +254,12 @@
                 });
             });
 
-            $("#addSubject").click(function () {
-                var value = $("#subjectName").val().toLowerCase();
-                var element = $("<option></option>").text(value);
-                $("#subjects-form").append(element);
-            })
-
             $('#start_timer_button').on('click', function (e) {
                 e.preventDefault();
                 $(this).text(function (_, text) {
                     return text === 'stop' ? 'Start Timer' : 'stop';
                 }).toggleClass('stop_button');
             });
-
-            $('progress')
         });
     </script>
 
