@@ -1,154 +1,155 @@
 :root {
- --bg-color:#8392B9;
- --sec-color: #4A587A;
- --acc-color: #FADBE0;
-
+  --bg-color: #8392b9;
+  --sec-color: #4a587a;
+  --acc-color: #fadbe0;
 }
 
-*, *::before, *::after {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
+*,
+*::before,
+*::after {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
 }
 
 main {
-    width: 100%;
-    min-height: 100vh;
-    overflow: hidden;
-    background-color: var(--bg-color);
-    padding: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-color);
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .box {
-   max-width: 1020px;
-   width: 100%;
-   position: relative;
-   border-radius: 3.3rem;
-   height: 640px;
-   background-color: var(--sec-color);
-   box-shadow: 0 60px 40px -30px #0000008f;
+  max-width: 1020px;
+  width: 100%;
+  position: relative;
+  border-radius: 3.3rem;
+  height: 640px;
+  background-color: var(--sec-color);
+  box-shadow: 0 60px 40px -30px #0000008f;
 }
 
 .inner-box {
-    position: absolute;
-    width: calc(100% - 4.1rem);
-    height: calc(100% - 4.1rem);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+  position: absolute;
+  width: calc(100% - 4.1rem);
+  height: calc(100% - 4.1rem);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
- .forms-wrap {
-    position: absolute;
-    height: 100%;
-    width: 45%;
-    top: 0;
-    left: 0;
+.forms-wrap {
+  position: absolute;
+  height: 100%;
+  width: 45%;
+  top: 0;
+  left: 0;
 }
 
-.carousel{
-   position: absolute;
-   height: 100%;
-   width: 55%;
-   left: 45%;
-   top: 0;
-   background-color: var(--acc-color);
-   border-radius: 2rem;
-   display: grid;
-   grid-template-rows: auto 1fr;
-   overflow: hidden;
+.carousel {
+  position: absolute;
+  height: 100%;
+  width: 55%;
+  left: 45%;
+  top: 0;
+  background-color: var(--acc-color);
+  border-radius: 2rem;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
 }
 
 .sign-in {
-    width: calc(100% - 1rem);
-    position: absolute;
-    margin: 0 auto;
-    height: 100%;
-    justify-content: center;
+  width: calc(100% - 1rem);
+  position: absolute;
+  margin: 0 auto;
+  height: 100%;
+  justify-content: center;
 }
 
 .images-wrapper {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
 }
 
 .image {
-    width: 100%;
-    border-top-left-radius: 2rem;
-    border-top-right-radius: 2rem;
-    grid-column: 1/2;
-    grid-row: 1/2;
-    opacity: 0;
-    max-height: 500px;
-    transition: 0.5s ease-in;
+  width: 100%;
+  border-top-left-radius: 2rem;
+  border-top-right-radius: 2rem;
+  grid-column: 1/2;
+  grid-row: 1/2;
+  opacity: 0;
+  max-height: 500px;
+  transition: 0.5s ease-in;
 }
 
 .img-1 {
-    transform: translate(0, -50px);
+  transform: translate(0, -50px);
 }
 
 .img-2 {
-    transform: scale(0.4, 0.5);
+  transform: scale(0.4, 0.5);
 }
 
 .img-3 {
-    transform: scale(0.3) rotate(0.5);
+  transform: scale(0.3) rotate(0.5);
 }
 
 .image.show {
-    opacity: 1;
-    transform: none;
+  opacity: 1;
+  transform: none;
 }
 
 .text-slider {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
 
 .text-wrap {
-    max-height: 2.2rem;
-    overflow: hidden;
-    margin-bottom: 1rem;
+  max-height: 2.2rem;
+  overflow: hidden;
+  margin-bottom: 1rem;
 }
 
-.text-group{
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    transform: translateY(0);
-    transition: 0.5s;
+.text-group {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  transform: translateY(0);
+  transition: 0.5s;
 }
 
 .text-group h2 {
-    line-height: 2.2rem;
-    font-weight: 600;
-    font-size: 1.3rem;
+  line-height: 2.2rem;
+  font-weight: 600;
+  font-size: 1.3rem;
 }
 
 .bullets {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .bullets span {
-    display: block;
-    width: 0.6rem;
-    height: 0.6rem;
-    background-color: gray;
-    margin: 0 0.25rem;
-    border-radius: 50%;
-    cursor: pointer;
+  display: block;
+  width: 0.6rem;
+  height: 0.6rem;
+  background-color: gray;
+  margin: 0 0.25rem;
+  border-radius: 50%;
+  cursor: pointer;
 }
 
 .bullets span.active {
-    width: 1.2rem;
-    background-color: black;
-    border-radius: 1rem;
+  width: 1.2rem;
+  background-color: black;
+  border-radius: 1rem;
 }
