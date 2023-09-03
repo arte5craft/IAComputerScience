@@ -71,14 +71,13 @@ main {
   justify-content: center;
 }
 
-.images-wrapper {
+.panel-wrapper {
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr;
 }
 
-.image {
-  width: 100%;
+.panel {
   border-top-left-radius: 2rem;
   border-top-right-radius: 2rem;
   grid-column: 1/2;
@@ -86,6 +85,13 @@ main {
   opacity: 0;
   max-height: 500px;
   transition: 0.5s ease-in;
+  text-align: center;
+  font: 16px Roboto, arial, sans-serif;
+}
+
+.panel img {
+  width: 100%;
+  margin-bottom: 0.5rem;
 }
 
 .img-1 {
@@ -100,7 +106,7 @@ main {
   transform: scale(0.3) rotate(0.5);
 }
 
-.image.show {
+.panel.show {
   opacity: 1;
   transform: none;
 }
