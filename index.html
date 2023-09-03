@@ -147,7 +147,7 @@
           },
           function (error) {
             notify("text-bg-danger", error);
-          },
+          }
         );
       };
 
@@ -211,62 +211,51 @@
       </div>
     </nav>
 
-    <div class="container text-center py-5">
-      <div class="col">
-        <form class="row g-3 studyForm">
-          <div class="mb-3">
-            <div class="row justify-content-around py-3">
-              <div class="col">
-                <input
-                  id="subjectName"
-                  name="subjectName"
-                  type="text"
-                  class="form-control"
-                  placeholder="Subject name"
-                  aria-label="subject name"
-                  autocomplete="off"
-                />
-              </div>
-              <div class="col">
-                <ul class="list-inline m-0">
-                  <li class="list-inline-item">
-                    <button
-                      id="addSubject"
-                      class="btn btn-primary btn-sm rounded-0"
-                      type="button"
-                      data-toggle="tooltip"
-                      data-placement="top"
-                      title="Add"
-                    >
-                      <i class="fa fa-table"></i>
-                    </button>
-                  </li>
-                  <li class="list-inline-item">
-                    <button
-                      id="deleteSubject"
-                      class="btn btn-danger btn-sm rounded-0"
-                      type="button"
-                      data-toggle="tooltip"
-                      data-placement="top"
-                      title="Delete"
-                    >
-                      <i class="fa fa-trash"></i>
-                    </button>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
+    <div class="container py-5">
+      <form class="row g-3 studyForm">
+        <div class="row row-cols-lg-auto g-3 align-items-center">
+          <div class="col-12 flex-grow-1">
+            <label class="visually-hidden" for="subjects-form"
+              >Choose a subject</label
+            >
             <select
               id="subjects-form"
               name="subject"
               class="form-select"
               required
-              aria-label="select example"
             ></select>
-            <div class="invalid-feedback">Example invalid select feedback</div>
           </div>
+          <div class="col-12 ms-auto">
+            <label class="visually-hidden" for="subjectName"
+              >Add a new subject</label
+            >
+            <input
+              id="subjectName"
+              name="subjectName"
+              type="text"
+              class="form-control"
+              placeholder="Add new subject"
+              aria-label="Subject name"
+              autocomplete="off"
+            />
+          </div>
+          <div class="col-12">
+            <button id="addSubject" class="btn btn-primary" type="button">
+              Add <i class="fa fa-plus"></i>
+            </button>
+            <button
+              id="deleteSubject"
+              class="btn btn-link text-danger btn-sm"
+              type="button"
+              disabled="disabled"
+            >
+              Delete subject <i class="fa fa-trash"></i>
+            </button>
+          </div>
+          <div class="invalid-feedback">Example invalid select feedback</div>
+        </div>
 
+        <div class="row row-cols-lg-auto g-3 align-items-center">
           <div class="mb-3">
             <label for="validationCustomUsername" class="form-label"
               >Starting Time</label
@@ -278,7 +267,6 @@
                 type="time"
                 class="form-control"
                 id="validationCustomUsername"
-                aria-describedby="inputGroupPrepend"
                 required
               />
               <div class="invalid-feedback">
@@ -286,8 +274,7 @@
               </div>
             </div>
           </div>
-
-          <div class="mb-3 py-3">
+          <div class="mb-3">
             <label for="validationCustomUsername" class="form-label"
               >Ending time</label
             >
@@ -306,8 +293,8 @@
               </div>
             </div>
           </div>
-
           <div class="mb-3">
+            <label for="priority" class="form-label">Priority</label>
             <select
               id="priority"
               name="priority"
@@ -320,41 +307,45 @@
               <option value="Medium">Medium</option>
               <option value="Low">Low</option>
             </select>
-            <div class="invalid-feedback">Example invalid select feedback</div>
           </div>
-
-          <div class="col-12">
-            <button id="submitBtn" class="btn btn-primary" type="submit">
-              Submit form
+          <div class="mb-3">
+            <label for="submitBtn" class="form-label">Submit</label>
+            <button
+              id="submitBtn"
+              class="btn btn-primary d-block"
+              type="submit"
+            >
+              Add session <i class="fa fa-plus"></i>
             </button>
           </div>
-        </form>
-
-        <div class="py-3">
-          <input
-            class="form-control"
-            id="myInput"
-            type="text"
-            placeholder="Search.."
-          />
         </div>
+        <div class="invalid-feedback">Example invalid select feedback</div>
+      </form>
 
-        <table class="table" id="table">
-          <thead>
-            <tr>
-              <th scope="col">Subject</th>
-              <th scope="col">Duration</th>
-              <th scope="col">Priority</th>
-              <th scope="col">Progress</th>
-              <th scope="col">Quality</th>
-            </tr>
-          </thead>
-          <tbody id="tbody" class="tbody"></tbody>
-        </table>
+      <div class="py-3">
+        <input
+          class="form-control"
+          id="myInput"
+          type="text"
+          placeholder="Search.."
+        />
+      </div>
 
-        <div id="countdownExample">
-          <div class="values"></div>
-        </div>
+      <table class="table" id="table">
+        <thead>
+          <tr>
+            <th scope="col">Subject</th>
+            <th scope="col">Duration</th>
+            <th scope="col">Priority</th>
+            <th scope="col">Progress</th>
+            <th scope="col">Quality</th>
+          </tr>
+        </thead>
+        <tbody id="tbody" class="tbody"></tbody>
+      </table>
+
+      <div id="countdownExample">
+        <div class="values"></div>
       </div>
     </div>
 
@@ -422,7 +413,7 @@
         $('[data-toggle="tooltip"]').tooltip();
       });
       const toastBootstrap = bootstrap.Toast.getOrCreateInstance(
-        document.getElementById("liveToast"),
+        document.getElementById("liveToast")
       );
       function notify(cls, message) {
         document.querySelector(".toast-body").innerHTML = message;
