@@ -1,6 +1,3 @@
-/*
-
-Code for dividing the studying hours
 
 function distributeStudyTimeWithPriority(subjects, totalHoursPerWeek, subjectPriorities, previousWeekAllocations) {
   const totalPriority = subjectPriorities.reduce((sum, priority) => sum + priority, 0);
@@ -31,8 +28,3 @@ const previousWeekAllocations = {
 
 const studyPlan = distributeStudyTimeWithPriority(subjects, totalHoursPerWeek, subjectPriorities, previousWeekAllocations);
 console.log(studyPlan);
-
-
-************************************
-
-*/

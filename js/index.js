@@ -2,113 +2,44 @@ const form = document.querySelector('.studyForm');
 const table = document.querySelector('.tbody');
 let timeValue;
 let doc;
-var begin;
-var finish;
+var timer;
 
-const activeAlarms = document.querySelector(".activeAlarms");
-const alarmSound = new Audio("./alarm.mp3");
+function createAlarm(start, end) {
+  // find the time till the start
+  // add the difference to both the start and end time
+  var [startHour, startMin] = start.split(' ').map((str) => parseInt(str));
+  var [endHour, endMin] = parseInt(end.split(' ')).map((str) => parseInt(str));
+  console.log(endHour);
+  timeDifference = (((endHour - startHour) * 60) + (endMin + startMin))*60;
+  console.log(endHour - startHour);
 
-let alarmsArray = [];
-let alarmIndex = 0;
+  var compareTime = new Date();
+  compareTime.setSeconds(compareTime.getSeconds()+10);
 
-// Append zeroes for single digit
-const appendZero = (value) => (value < 10 ? "0" + value : value);
-
-// Search for value in object
-const searchObject = (parameter, value) => {
-  let alarmObject, objIndex, exists = false;
-  alarmsArray.forEach((alarm, index) => {
-    if (alarm[parameter] == value) {
-      exists = true;
-      alarmObject = alarm;
-      objIndex = index;
-      return false;
-    }
-  });
-  return [exists, alarmObject, objIndex];
-};
-
-// Display Time
-function displayTimer() {
-  let date = new Date();
-  let [hours, minutes, seconds] = [
-    appendZero(date.getHours()),
-    appendZero(date.getMinutes()),
-    appendZero(date.getSeconds())
-  ];
-
-  // Alarm
-  alarmsArray.forEach((alarm, index) => {
-    if (alarm.isActive) {
-      if (`${alarm.alarmHour}:${alarm.alarmMinute}` === `${hours}:${minutes}`) {
-        alarmSound.play();
-        alarmSound.loop = true;
-      }
-    }
-  });
+  timer = setInterval(function() {
+    timeBetweenDates(compareTime);
+  }, 940);
 }
 
-// Create alarm div
-const createAlarm = (alarmObj) => {
-  // Keys from object
-  const { id, alarmHour, alarmMinute } = alarmObj;
-  // Alarm div
-  let alarmDiv = document.createElement("div");
-  alarmDiv.classList.add("alarm");
-  alarmDiv.setAttribute("data-id", id);
-  alarmDiv.innerHTML = `<span>${alarmHour}:${alarmMinute}</span>`;
+function timeBetweenDates(time) {
+  var start = time;
+  var now = new Date();
+  var difference = start.getTime() - now.getTime();
 
-  // Checkbox
-  let checkbox = document.createElement("input");
-  checkbox.setAttribute("type", "checkbox");
-  checkbox.addEventListener("click", (e) => {
-    if (e.target.checked) {
-      startAlarm(e);
-    } else {
-      stopAlarm(e);
-    }
-  });
-  alarmDiv.appendChild(checkbox);
-  // Delete button
-  let deleteButton = document.createElement("button");
-  deleteButton.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
-  deleteButton.classList.add("deleteButton");
-  deleteButton.addEventListener("click", (e) => deleteAlarm(e));
-  alarmDiv.appendChild(deleteButton);
-  console.log(alarmDiv);
-
-  // Append the alarmDiv to the row
-  document.getElementById('container').appendChild(alarmDiv);
-};
-
-// Start Alarm
-const startAlarm = (e) => {
-  let searchId = e.target.parentElement.getAttribute("data-id");
-  let [exists, obj, index] = searchObject("id", searchId);
-  if (exists) {
-    alarmsArray[index].isActive = true;
+  if (difference <= 0) {
+    clearInterval(timer);
+  } else {
+    var seconds = Math.floor(difference / 1000);
+    var minutes = Math.floor(seconds / 60);
+    var hours = Math.floor(minutes / 60);
+    var days = Math.floor(hours / 24);
+    hours %= 24;
+    minutes %= 60;
+    seconds %= 60;
+    console.log(days+":"+hours+":"+minutes+":"+seconds);
   }
-};
+}
 
-// Stop alarm
-const stopAlarm = (e) => {
-  let searchId = e.target.parentElement.getAttribute("data-id");
-  let [exists, obj, index] = searchObject("id", searchId);
-  if (exists) {
-    alarmsArray[index].isActive = false;
-    alarmSound.pause();
-  }
-};
-
-// Delete alarm
-const deleteAlarm = (e) => {
-  let searchId = e.target.parentElement.parentElement.getAttribute("data-id");
-  let [exists, obj, index] = searchObject("id", searchId);
-  if (exists) {
-    e.target.parentElement.parentElement.remove();
-    alarmsArray.splice(index, 1);
-  }
-};
 
 form.addEventListener('submit', (e) => {
   submit(e);
@@ -117,43 +48,30 @@ form.addEventListener('submit', (e) => {
 
 const submit = (e) => {
   const formData = new FormData(e.target);
-  const ftimeInput = document.getElementById('ftime');
-  const selectedTime = ftimeInput.value;
-
-  // Parse the selected time to get hours and minutes
-  const [selectedHour, selectedMinute] = selectedTime.split(':');
-  console.log(formData.stime);
-  // Create an alarm object
-  alarmIndex += 1;
-  let alarmObj = {};
-  alarmObj.id = `${alarmIndex}_${selectedHour}_${selectedMinute}`;
-  alarmObj.alarmHour = selectedHour;
-  alarmObj.alarmMinute = selectedMinute;
-  alarmObj.isActive = false;
-
-  // Append the alarm object to the formData
-  formData.append('progress', alarmObj); // Convert the object to a string
   formData.append('quality', '<div><select id="quality" class="form-select" required aria-label="Disabled select example" disabled><option value="">Quality</option><option value="1">Great!</option><option value="2">Moderate</option><option value="3">Bad</option></select><div class="invalid-feedback">Example invalid select feedback</div></div>');
-
   // Update the val array to include the alarm object
   const row = document.createElement('tr');
-  createAlarm(alarmObj, alarmTd);
+  const data = Object.fromEntries(formData.entries());
+  const start = data.stime;
+  const end = data.ftime;
+  createAlarm(start,end);
+
   let val = [
-    formData.get('subject'),
-    formData.get('stime') + '-' + formData.get('ftime'),
-    formData.get('priority'), // Convert the object to a string
-    formData.get('quality')
+    data.subject,
+    data.stime + "-" + data.ftime,
+    data.priority,
+    data.progress,
+    data.quality,
   ];
 
-  const data = Object.fromEntries(formData.entries());
-  val.forEach((item) => {
-    var cell = document.createElement('td');
-    cell.innerHTML = item;
-    row.appendChild(cell);
-  });
-  table.appendChild(row);
+  for (const value of val) {
+    const tableData = document.createElement('td');
+    tableData.innerHTML = value;
+    row.appendChild(tableData);
+  }
 
-  db.collection("users").doc(uid).collection("schedules").doc().set(data)
+  table.append(row);
+  db.collection("users").doc(uid).collection("schedules").add(data)
     .then(() => {
       console.log('success');
     })
@@ -162,8 +80,5 @@ const submit = (e) => {
     });
 }
 
-
-window.onload = () => {
-  setInterval(displayTimer);
-  alarmsArray = [];
-};
+// add a code so that when the final time has been reached, the dropdown box will unlock
+//
