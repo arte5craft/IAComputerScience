@@ -1,30 +1,30 @@
+// Sample input data
+const subjects = ['A', 'B', 'C'];
+const priorityScores = {'A': 3, 'B': 2, 'C': 1};
+const previousWeekHours = {'A': 5, 'B': 3, 'C': 2};
+const breaksTaken = {'A': 2, 'B': 1, 'C': 1};
+const totalHours = 15;  // Total hours to be divided this week
 
-function distributeStudyTimeWithPriority(subjects, totalHoursPerWeek, subjectPriorities, previousWeekAllocations) {
-  const totalPriority = subjectPriorities.reduce((sum, priority) => sum + priority, 0);
-  const studyPlan = {};
+// Calculate weighted priority scores
+const weightedPriorityScores = {};
+subjects.forEach(subject => {
+    weightedPriorityScores[subject] = priorityScores[subject] * (previousWeekHours[subject] - breaksTaken[subject] + 1);
+});
 
-  subjects.forEach((subject, index) => {
-    const priorityPercentage = subjectPriorities[index] / totalPriority;
-    const previousAllocation = previousWeekAllocations[subject] || 0;
-    const availableHours = totalHoursPerWeek - previousAllocation;
+// Sort subjects by weighted priority scores in descending order
+const sortedSubjects = subjects.sort((a, b) => weightedPriorityScores[b] - weightedPriorityScores[a]);
 
-    const allocatedHours = Math.floor(availableHours * priorityPercentage);
-    studyPlan[subject] = allocatedHours;
-  });
+// Allocate hours based on priority scores and previous week data
+const allocatedHours = {};
+let totalAllocatedHours = 0;
 
-  return studyPlan;
-}
+// Allocate hours based on priority scores and previous week data
+sortedSubjects.forEach(subject => {
+    const maxHoursToAllocate = previousWeekHours[subject] - breaksTaken[subject] + 1;
+    const remainingHours = totalHours - totalAllocatedHours;
+    const hoursToAllocate = Math.min(remainingHours, maxHoursToAllocate);
+    allocatedHours[subject] = hoursToAllocate;
+    totalAllocatedHours += hoursToAllocate;
+});
 
-const subjects = ["Math", "Science", "History", "English"];
-const totalHoursPerWeek = 15; // Total study hours per week
-
-const subjectPriorities = [3, 2, 1, 2]; // Higher values mean higher priority
-const previousWeekAllocations = {
-  "Math": 5,
-  "Science": 3,
-  "History": 2,
-  "English": 4
-};
-
-const studyPlan = distributeStudyTimeWithPriority(subjects, totalHoursPerWeek, subjectPriorities, previousWeekAllocations);
-console.log(studyPlan);
+console.log("Allocated Hours:", allocatedHours);

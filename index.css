@@ -122,51 +122,42 @@ button.stop_button {
   color: #ffffff;
 }
 
-.alarm {
-  display: grid;
-  grid-template-columns: 8fr 2fr 2fr;
-  gap: 1em;
-  margin-top: 1.5em;
-  align-items: center;
-  border-bottom: 1px solid #898f9b;
-  padding-bottom: 0.6em;
-}
-
-.alarm input[type="checkbox"] {
-  appearance: none;
-  height: 2em;
-  width: 3.75em;
-  background-color: #e2e2ec;
-  border-radius: 1.25em;
-  position: relative;
-  cursor: pointer;
-  outline: none;
-}
-
-.alarm input[type="checkbox"]:before {
-  position: absolute;
-  content: "";
-  background-color: #757683;
-  height: 1.43em;
-  width: 1.43em;
-  border-radius: 50%;
-  top: 0.25em;
-  left: 0.25em;
-}
-
-.alarm input[type="checkbox"]:checked {
-  background-color: #d2e2ff;
-}
-
-.alarm input[type="checkbox"]:checked:before {
-  background-color: #377dff;
-  left: 2em;
-}
-
 .deleteButton {
   background-color: transparent;
   font-size: 1.5em;
   color: #377dff;
   border: none;
   cursor: pointer;
+}
+
+.timer {
+  font-family: sans-serif;
+  display: inline-block;
+  padding: 24px 32px;
+  border-radius: 30px;
+  background: white;
+}
+
+.timer__part {
+  font-size: 36px;
+  font-weight: bold;
+}
+
+.timer__btn {
+  width: 50px;
+  height: 50px;
+  margin-left: 16px;
+  border-radius: 50%;
+  border: none;
+  color: white;
+  background: #8208e6;
+  cursor: pointer;
+}
+
+.timer__btn--start {
+  background: #00b84c;
+}
+
+.timer__btn--stop {
+  background: #ff0256;
 }

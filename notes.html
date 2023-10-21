@@ -53,6 +53,17 @@
             user.getIdToken().then(function (accessToken) {
               document.getElementById("user-name").textContent = displayName;
               document.getElementById("user-email").textContent = email;
+              db.collection("users")
+              .doc(uid)
+              .collection("notes")
+              .get()
+              .then((docs) => {
+                docs.forEach((doc) => {
+                  let data = doc.data();
+                  let note = [data.stringValue]
+                  $("#notes-container").append(note);
+                })
+              })
             });
           }
         });
@@ -191,7 +202,7 @@
         } else if (!$("#description").val()) {
           notify("text-bg-danger", "enter a description");
         } else {
-          notify("text-bg-success", "succesful");
+          notify("text-bg-success", "A new note was added!");
           var title = $("#title").val();
           var content = $("#description").val();
           $("#title").val("");
@@ -205,12 +216,38 @@
           console.log(note);
           $("#notes-container").append(note);
 
+          db.collection("users")
+          .doc(uid)
+          .collection('notes')
+          .doc(title)
+          .set({
+            stringValue: note,
+          })
+          .then(() => {
+            console.log('note stored');
+          })
+          .catch((error) => {
+            console.log('error: ', error);
+          })
         }
       });
     });
 
     $(document).on("click", "#deleteBtnNote", function () {
+      let val = $(this).parent().children('h5').text();
       $(this).parent().parent().remove();
+
+      db.collection("users")
+          .doc(uid)
+          .collection('notes')
+          .doc(val)
+          .delete()
+          .then(() => {
+            console.log('note deleted');
+          })
+          .catch((error) => {
+            console.log('error: ', error);
+          })
     });
   </script>
   <script>

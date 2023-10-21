@@ -1,84 +1,118 @@
+let countdown;
+let timerRunning = false;
+let timeLeft = 0;
+var formDataObject;
+let pauseNum = 0;
+let startTime;
+let endTime;
+
 const form = document.querySelector('.studyForm');
-const table = document.querySelector('.tbody');
-let timeValue;
-let doc;
-var timer;
+const timerDisplay = document.getElementById('timer');
+const startButton = document.getElementById('submitBtn');
+const pauseButton = document.getElementById('pause');
+const resumeButton = document.getElementById('resume');
+const clearButton = document.getElementById('clear');
 
-function createAlarm(start, end) {
-  // find the time till the start
-  // add the difference to both the start and end time
-  var [startHour, startMin] = start.split(' ').map((str) => parseInt(str));
-  var [endHour, endMin] = parseInt(end.split(' ')).map((str) => parseInt(str));
-  console.log(endHour);
-  timeDifference = (((endHour - startHour) * 60) + (endMin + startMin))*60;
-  console.log(endHour - startHour);
+const modTime = document.getElementById('timeSpent');
+const modPoints = document.getElementById('points');
+const modPauses = document.getElementById('numPause');
+const modSubject = document.getElementById('subject');
+const modPriority = document.getElementById('priority');
+const modGoals = document.getElementById('goals');
 
-  var compareTime = new Date();
-  compareTime.setSeconds(compareTime.getSeconds()+10);
-
-  timer = setInterval(function() {
-    timeBetweenDates(compareTime);
-  }, 940);
+function displayTimeLeft(seconds) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainderSeconds = seconds % 60;
+  const display = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainderSeconds.toString().padStart(2, '0')}`;
+  timerDisplay.textContent = display;
 }
 
-function timeBetweenDates(time) {
-  var start = time;
-  var now = new Date();
-  var difference = start.getTime() - now.getTime();
+function startTimer(seconds) {
+  const startTime = new Date();
+  const endTime = new Date();
+  endTime.setSeconds(startTime.getSeconds() + seconds);
+  formDataObject.start = startTime;
+  formDataObject.end = endTime;
 
-  if (difference <= 0) {
-    clearInterval(timer);
-  } else {
-    var seconds = Math.floor(difference / 1000);
-    var minutes = Math.floor(seconds / 60);
-    var hours = Math.floor(minutes / 60);
-    var days = Math.floor(hours / 24);
-    hours %= 24;
-    minutes %= 60;
-    seconds %= 60;
-    console.log(days+":"+hours+":"+minutes+":"+seconds);
-  }
+  if (timerRunning) return;
+  clearInterval(countdown);
+  timeLeft = seconds;
+  displayTimeLeft(timeLeft);
+  timerRunning = true;
+  startButton.disabled = true;
+  pauseButton.disabled = false;
+  resumeButton.disabled = true;
+  clearButton.disabled = false;
+  countdown = setInterval(() => {
+    timeLeft--;
+    localStorage.setItem('time', timeLeft);
+    if (timeLeft < 0) {
+      let myModal = new bootstrap.Modal(document.getElementById('exampleModal'), {});
+      myModal.show();
+      clearInterval(countdown);
+      saveData(formDataObject);
+      modPauses.innerHTML = pauseNum;
+      timerRunning = false;
+      startButton.disabled = false;
+      pauseButton.disabled = true;
+      resumeButton.disabled = true;
+    } else {
+      displayTimeLeft(timeLeft);
+    }
+  }, 1000);
 }
 
+function saveData(data) {
+  db.collection("users")
+  .doc(uid)
+  .collection("schedules")
+  .doc()
+  .set(data)
+  .then(() => {
+    console.log("success");
+  })
+  .catch((error) => {
+    console.error("Error adding document: ", error);
+  });
+}
 
-form.addEventListener('submit', (e) => {
-  submit(e);
-  e.preventDefault();
+startButton.addEventListener('click', () => {
+  var hours = document.getElementById('hours').value;
+  var minutes = document.getElementById('minutes').value;
+  var formData = new FormData(form);
+  formDataObject = Object.fromEntries(formData);
+  modTime.innerHTML = (hours).toString().padStart(2, '0') + ':' + (minutes).toString().padStart(2, '0') + ":00";
+  modPoints.innerHTML = (hours*10 + minutes) + ' points';
+  modSubject.innerHTML = formData.get('subject');
+  modPriority.innerHTML = formData.get('priority');
+  modGoals.innerHTML = formData.get('goals');
+  startTimer(hours*3600 + minutes*60);
+  form.reset();
 });
 
-const submit = (e) => {
-  const formData = new FormData(e.target);
-  formData.append('quality', '<div><select id="quality" class="form-select" required aria-label="Disabled select example" disabled><option value="">Quality</option><option value="1">Great!</option><option value="2">Moderate</option><option value="3">Bad</option></select><div class="invalid-feedback">Example invalid select feedback</div></div>');
-  // Update the val array to include the alarm object
-  const row = document.createElement('tr');
-  const data = Object.fromEntries(formData.entries());
-  const start = data.stime;
-  const end = data.ftime;
-  createAlarm(start,end);
+pauseButton.addEventListener('click', () => {
+  clearInterval(countdown);
+  timerRunning = false;
+  pauseNum++;
+  pauseButton.disabled = true;
+  resumeButton.disabled = false;
+});
 
-  let val = [
-    data.subject,
-    data.stime + "-" + data.ftime,
-    data.priority,
-    data.progress,
-    data.quality,
-  ];
+resumeButton.addEventListener('click', () => {
+  startTimer(timeLeft);
+});
 
-  for (const value of val) {
-    const tableData = document.createElement('td');
-    tableData.innerHTML = value;
-    row.appendChild(tableData);
-  }
+clearButton.addEventListener('click', () => {
+  clearInterval(countdown);
+  timerRunning = false;
+  startButton.disabled = false;
+  pauseButton.disabled = true;
+  resumeButton.disabled = true;
+  clearButton.disabled = true;
+  displayTimeLeft(0);
+});
 
-  table.append(row);
-  db.collection("users").doc(uid).collection("schedules").add(data)
-    .then(() => {
-      console.log('success');
-    })
-    .catch((error) => {
-      console.error("Error adding document: ", error);
-    });
+function points() {
+  // create a doc to store points for each subject if it does not exist
 }
-
-// add a code so that when the final time has been reached, the dropdown box will unlock
-//
