@@ -5,10 +5,7 @@
   <!--Use on Phone-->
 
   <head>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -54,16 +51,16 @@
               document.getElementById("user-name").textContent = displayName;
               document.getElementById("user-email").textContent = email;
               db.collection("users")
-              .doc(uid)
-              .collection("notes")
-              .get()
-              .then((docs) => {
-                docs.forEach((doc) => {
-                  let data = doc.data();
-                  let note = [data.stringValue]
-                  $("#notes-container").append(note);
-                })
-              })
+                .doc(uid)
+                .collection("notes")
+                .get()
+                .then((docs) => {
+                  docs.forEach((doc) => {
+                    let data = doc.data();
+                    let note = [data.stringValue];
+                    $("#notes-container").append(note);
+                  });
+                });
             });
           }
         });
@@ -117,9 +114,7 @@
               </a>
               <ul class="dropdown-menu dropdown-menu-end">
                 <li>
-                  <a class="dropdown-item" href="login.html"
-                    >Sign out (<span id="user-email"></span>)</a
-                  >
+                  <a class="dropdown-item" href="login.html">Sign out (<span id="user-email"></span>)</a>
                 </li>
               </ul>
             </li>
@@ -148,12 +143,7 @@
         <h4>Description</h4>
       </div>
       <div class="input-group mb-3 px-5">
-        <textarea
-          id="description"
-          rows="5"
-          class="form-control"
-          aria-label="With textarea"
-        ></textarea>
+        <textarea id="description" rows="5" class="form-control" aria-label="With textarea"></textarea>
       </div>
     </div>
 
@@ -169,21 +159,10 @@
     </div>
 
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
-      <div
-        id="liveToast"
-        class="toast"
-        role="alert"
-        aria-live="assertive"
-        aria-atomic="true"
-      >
+      <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header text-bg-danger">
           <strong class="me-auto">Alert</strong>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="toast"
-            aria-label="Close"
-          ></button>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body"></div>
       </div>
@@ -217,51 +196,47 @@
           $("#notes-container").append(note);
 
           db.collection("users")
-          .doc(uid)
-          .collection('notes')
-          .doc(title)
-          .set({
-            stringValue: note,
-          })
-          .then(() => {
-            console.log('note stored');
-          })
-          .catch((error) => {
-            console.log('error: ', error);
-          })
+            .doc(uid)
+            .collection("notes")
+            .doc(title)
+            .set({
+              stringValue: note,
+            })
+            .then(() => {
+              console.log("note stored");
+            })
+            .catch((error) => {
+              console.log("error: ", error);
+            });
         }
       });
     });
 
     $(document).on("click", "#deleteBtnNote", function () {
-      let val = $(this).parent().children('h5').text();
+      let val = $(this).parent().children("h5").text();
       $(this).parent().parent().remove();
 
       db.collection("users")
-          .doc(uid)
-          .collection('notes')
-          .doc(val)
-          .delete()
-          .then(() => {
-            console.log('note deleted');
-          })
-          .catch((error) => {
-            console.log('error: ', error);
-          })
+        .doc(uid)
+        .collection("notes")
+        .doc(val)
+        .delete()
+        .then(() => {
+          console.log("note deleted");
+        })
+        .catch((error) => {
+          console.log("error: ", error);
+        });
     });
   </script>
   <script>
     $(function () {
       $('[data-toggle="tooltip"]').tooltip();
     });
-    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(
-      document.getElementById("liveToast"),
-    );
+    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(document.getElementById("liveToast"));
     function notify(cls, message) {
       document.querySelector(".toast-body").innerHTML = message;
-      document
-        .querySelector(".toast-header")
-        .setAttribute("class", `toast-header ${cls}`);
+      document.querySelector(".toast-header").setAttribute("class", `toast-header ${cls}`);
       toastBootstrap.show();
     }
   </script>
