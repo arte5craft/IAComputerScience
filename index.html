@@ -200,15 +200,12 @@
       </div>
     </nav>
 
-    <div id="container" class="container text-center py-5">
-      <div class="position-absolute start-0 d-flex flex-column flex-shrink-0 p-3 text-bg-light" style="width: 400px">
-        <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-          <svg class="bi pe-none me-2" width="40" height="32">
-            <use xlink:href="#bootstrap"></use>
-          </svg>
-          <span class="fs-4">Set the Timer</span>
+    <div id="container" class="container-fluid text-center py-5 position-relative">
+      <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-light" style="width: 400px">
+        <a href="/" class="d-flex align-items-center text-decoration-none">
+          <span class="material-symbols-outlined">Schedule</span>
+          <span class="fs-4 ms-1">Set the Timer</span>
         </a>
-        <hr />
 
         <div class="col">
           <form class="row g-3 studyForm">
@@ -311,7 +308,7 @@
         <hr />
       </div>
 
-      <div style="width: 550px" class="position-absolute top-50 end-0 d-flex flex-column timer">
+      <div style="width: calc(100vw - 400px)" class="position-absolute top-50 end-0 d-flex flex-column timer">
         <div>
           <div id="timer">00:00:00</div>
         </div>
