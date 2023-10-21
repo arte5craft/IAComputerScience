@@ -107,6 +107,19 @@
                   notify("text-bg-danger", "already exists");
                 }
               });
+<<<<<<< HEAD
+=======
+            } else {
+              // User is signed out.
+              document.location.href = "./login.html";
+            }
+          },
+          function (error) {
+            notify("text-bg-danger", error);
+          }
+        );
+      };
+>>>>>>> 66f7ba07b460e9e4c05a64b359fd92f511aff8bc
 
               $("#deleteSubject").click(function () {
                 var value = $("#subjectName").val();
@@ -146,6 +159,7 @@
       );
     };
 
+<<<<<<< HEAD
     window.addEventListener("load", function () {
       initApp();
     });
@@ -211,6 +225,54 @@
                     data-placement="top" title="Delete">
                     <i class="fa fa-trash"></i>
                   </button>
+=======
+  <body>
+    <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Productivity Pro</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="#"
+                >Study Session</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="calendar.html">Weekly Plan</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="notes.html">Notes</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav mb-2 mb-lg-0">
+            <li class="nav-item dropdown">
+              <a
+                id="user-name"
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Username
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item" href="login.html"
+                    >Sign out (<span id="user-email"></span>)</a
+                  >
+>>>>>>> 66f7ba07b460e9e4c05a64b359fd92f511aff8bc
                 </li>
               </ul>
             </div>
@@ -263,6 +325,129 @@
         <input class="form-control" id="myInput" type="text" placeholder="Search.." />
       </div>
 
+<<<<<<< HEAD
+=======
+    <div class="container py-5">
+      <form class="row g-3 studyForm">
+        <div class="row row-cols-lg-auto g-3 align-items-center">
+          <div class="col-12 flex-grow-1">
+            <label class="visually-hidden" for="subjects-form"
+              >Choose a subject</label
+            >
+            <select
+              id="subjects-form"
+              name="subject"
+              class="form-select"
+              required
+            ></select>
+          </div>
+          <div class="col-12 ms-auto">
+            <label class="visually-hidden" for="subjectName"
+              >Add a new subject</label
+            >
+            <input
+              id="subjectName"
+              name="subjectName"
+              type="text"
+              class="form-control"
+              placeholder="Add new subject"
+              aria-label="Subject name"
+              autocomplete="off"
+            />
+          </div>
+          <div class="col-12">
+            <button id="addSubject" class="btn btn-primary" type="button">
+              Add <i class="fa fa-plus"></i>
+            </button>
+            <button
+              id="deleteSubject"
+              class="btn btn-link text-danger btn-sm"
+              type="button"
+              disabled="disabled"
+            >
+              Delete subject <i class="fa fa-trash"></i>
+            </button>
+          </div>
+          <div class="invalid-feedback">Example invalid select feedback</div>
+        </div>
+
+        <div class="row row-cols-lg-auto g-3 align-items-center">
+          <div class="mb-3">
+            <label for="validationCustomUsername" class="form-label"
+              >Starting Time</label
+            >
+            <div class="input-group has-validation">
+              <input
+                id="stime"
+                name="stime"
+                type="time"
+                class="form-control"
+                id="validationCustomUsername"
+                required
+              />
+              <div class="invalid-feedback">
+                Please choose a valid starting time.
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="validationCustomUsername" class="form-label"
+              >Ending time</label
+            >
+            <div class="input-group has-validation">
+              <input
+                id="ftime"
+                name="ftime"
+                type="time"
+                class="form-control"
+                id="validationCustomUsername"
+                aria-describedby="inputGroupPrepend"
+                required
+              />
+              <div class="invalid-feedback">
+                Please choose a valid ending time.
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="priority" class="form-label">Priority</label>
+            <select
+              id="priority"
+              name="priority"
+              class="form-select"
+              required
+              aria-label="select example"
+            >
+              <option value="">Priority</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="submitBtn" class="form-label">Submit</label>
+            <button
+              id="submitBtn"
+              class="btn btn-primary d-block"
+              type="submit"
+            >
+              Add session <i class="fa fa-plus"></i>
+            </button>
+          </div>
+        </div>
+        <div class="invalid-feedback">Example invalid select feedback</div>
+      </form>
+
+      <div class="py-3">
+        <input
+          class="form-control"
+          id="myInput"
+          type="text"
+          placeholder="Search.."
+        />
+      </div>
+
+>>>>>>> 66f7ba07b460e9e4c05a64b359fd92f511aff8bc
       <table class="table" id="table">
         <thead>
           <tr>
@@ -275,6 +460,13 @@
         </thead>
         <tbody id="tbody" class="tbody"></tbody>
       </table>
+<<<<<<< HEAD
+=======
+
+      <div id="countdownExample">
+        <div class="values"></div>
+      </div>
+>>>>>>> 66f7ba07b460e9e4c05a64b359fd92f511aff8bc
     </div>
   </div>
 
@@ -305,6 +497,7 @@
           })
           .toggleClass("stop_button");
       });
+<<<<<<< HEAD
 
       $("#subjects-form").change(function () {
         var selectedOption = $(this).children("option:selected").val();
@@ -341,4 +534,18 @@
   </script>
 </body>
 
+=======
+      const toastBootstrap = bootstrap.Toast.getOrCreateInstance(
+        document.getElementById("liveToast")
+      );
+      function notify(cls, message) {
+        document.querySelector(".toast-body").innerHTML = message;
+        document
+          .querySelector(".toast-header")
+          .setAttribute("class", `toast-header ${cls}`);
+        toastBootstrap.show();
+      }
+    </script>
+  </body>
+>>>>>>> 66f7ba07b460e9e4c05a64b359fd92f511aff8bc
 </html>
