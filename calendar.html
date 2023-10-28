@@ -50,7 +50,27 @@
                 .get()
                 .then((doc) => {
                   if (doc.exists) {
-                    list = Object.values(doc.data());
+                    let list = Object.values(doc.data());
+
+                    for (const value of list) {
+                      db.collection("users").doc(uid).collection("subjects").doc(value).get().then((doc) => {
+                        if (doc.exists) {
+                          let data = doc.data();
+                          const table = document.getElementById('time-division');
+                          let row = table.insertRow();
+                          row.insertCell().textContent = value;
+                          row.insertCell().textContent = data.value.hours + ' hours';
+                          row.insertCell().textContent = data.value.points + ' points';
+
+                        } else {
+                          console.log("No such document");
+                        }
+                      }).catch((error) => {
+                        console.log(error)
+                      });
+                    }
+
+
                     var options = [...list]
                       .map((op) => `<li class="list-group-item" value="${op}">${op}</li>`)
                       .join("");
@@ -68,11 +88,10 @@
                 .then((docs) => {
                   docs.forEach((doc) => {
                     let data = doc.data();
-                    let val =
-                    {
+                    let val = {
                       title: data.subject,
                       start: new Date(data.start.seconds * 1000 + data.start.nanoseconds / 1000000 + 28800000),
-                      end: new Date(data.end.seconds * 1000 + data.end.nanoseconds / 1000000 + 28800000)
+                      end: new Date(data.end.seconds * 1000 + data.end.nanoseconds / 1000000 + 28800000),
                     };
                     events.push(val);
                   });
@@ -88,7 +107,7 @@
                       headerToolbar: {
                         left: "prev,next today",
                         center: "title",
-                        right: "dayGridMonth,timeGridWeek,timeGridDay"
+                        right: "dayGridMonth,timeGridWeek,timeGridDay",
                       },
                       editable: true,
                       events: events, // Set the events during the initial creation
@@ -153,69 +172,70 @@
     </div>
   </nav>
 
-  <button type="button" class="m-5 btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-    Divide your study time
-  </button>
-
-  <!-- Modal -->
-  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Time Division</h5>
-          <button type="button" class="btn btn-primary close" data-bs-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3 py-5">
-            <h3>Reorder based on priority</h3>
-            <div class="container-fluid d-flex justify-content-center">
-              <ul class="list-group" id="items"></ul>
+  <div class="container">
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Time Division</h5>
+            <button type="button" class="btn btn-primary close" data-bs-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3 py-5">
+              <h3>Reorder based on priority</h3>
+              <div class="container-fluid d-flex justify-content-center">
+                <ul class="list-group" id="items"></ul>
+              </div>
             </div>
+
+            <table id="time-division" class="py-5 table">
+              <thead>
+                <tr>
+                  <th scope="col">Subject</th>
+                  <th scope="col">Time spent this week</th>
+                  <th scope="col">Points Awarded</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+
+            <div class="py-5 form">
+              <label for="validationCustom01" class="form-label">Average Number of Hours of Studying for the
+                week</label>
+              <input type="text" class="form-control" id="validationCustom01" required />
+              <div class="valid-feedback">Looks good!</div>
+            </div>
+
+            <button class="btn btn-primary">Calculate</button>
+
+            <table class="py-5 table">
+              <thead>
+                <tr>
+                  <th scope="col">Subject</th>
+                  <th scope="col">Time Required</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
           </div>
-
-          <table id="time-division" class="py-5 table">
-            <thead>
-              <tr>
-                <th scope="col">Subject</th>
-                <th scope="col">Time spent this week</th>
-                <th scope="col">Priority</th>
-                <th scope="col">Points Awarded</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-
-          <div class="py-5 form">
-            <label for="validationCustom01" class="form-label">Average Number of Hours of Studying for the week</label>
-            <input type="text" class="form-control" id="validationCustom01" required />
-            <div class="valid-feedback">Looks good!</div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
           </div>
-
-          <button class="btn btn-primary">Calculate</button>
-
-          <table class="py-5 table">
-            <thead>
-              <tr>
-                <th scope="col">Subject</th>
-                <th scope="col">Time Required</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
         </div>
       </div>
     </div>
+    <button type="button" class="m-5 btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+      Divide your study time
+    </button>
+    <div id="calendar"></div>
   </div>
 
-  <div id="calendar"></div>
-  <script src="js/calendar.js"></script>
+
+  <script src="js/calendar.js" defer></script>
 
   <script>
     var el = document.getElementById("items");
