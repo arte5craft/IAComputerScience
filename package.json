@@ -1,14 +1,12 @@
 {
   "scripts": {
-    "lint": "prettier --write . && eslint --fix .",
+    "lint": "prettier --write",
     "start": "http-server"
   },
   "prettier": {
     "printWidth": 120
   },
   "devDependencies": {
-    "eslint": "^8.52.0",
-    "eslint-plugin-html": "^7.1.0",
     "http-server": "^14.1.1",
     "prettier": "^3.0.3"
   }

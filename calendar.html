@@ -14,7 +14,7 @@
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-  <script type="text/javascript">
+  <script type="text/javascript" defer>
     document.addEventListener("DOMContentLoaded", function () {
       const firebaseConfig = {
         apiKey: "AIzaSyAn10IlIPiXj0NLw7xv73aX60wg4OBftYw",
@@ -28,20 +28,180 @@
       var calendar;
       var app = firebase.initializeApp(firebaseConfig);
       const db = firebase.firestore();
+      window.db = db;
+
       initApp = function () {
         firebase.auth().onAuthStateChanged(function (user) {
           if (user) {
-            const events = [];
             var displayName = user.displayName;
             var email = user.email;
             var emailVerified = user.emailVerified;
             var photoURL = user.photoURL;
             uid = user.uid;
+            let events = [];
             var phoneNumber = user.phoneNumber;
             var providerData = user.providerData;
             user.getIdToken().then(function (accessToken) {
               document.getElementById("user-name").textContent = displayName;
               document.getElementById("user-email").textContent = email;
+
+              const schedule = document.getElementById('divideTime');
+
+              function getWeekNumber(d) {
+                // Copy date so don't modify original
+                d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+                // Set to nearest Thursday: current date + 4 - current day number
+                // Make Sunday's day number 7
+                d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+                // Get first day of year
+                const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+                // Calculate full weeks to nearest Thursday
+                const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+                // Return array of year and week number
+                return [d.getUTCFullYear(), weekNo];
+              }
+
+              let schedules = [];
+              db.collection("users").doc(uid).collection("schedules").get()
+                .then(function (docs) {
+
+                  // Process retrieved data
+                  docs.forEach(function (doc) {
+                    let data = doc.data();
+                    let val = {
+                      subject: data.subject,
+                      start: new Date(data.start.seconds * 1000 + data.start.nanoseconds / 1000000 + 28800000),
+                      duration: parseInt(data.hours) + parseInt(data.minutes) / 60
+                    };
+                    schedules.push(val);
+                  });
+
+                  // Log schedules array and perform other operations here
+                })
+                .catch(function (error) {
+                  console.error("Error fetching data: ", error);
+                });
+
+              function sumDurationByWeek(sessions, subjects) {
+                let latestWeekDurations = []; // Array to store study durations for the most recent week
+                const weekSums = {}; // Object to store total study duration per week for each subject
+                let latestWeek = ''; // To store the latest week in the format 'YYYY-WW'
+                // Initialize the total study duration for each subject in the weekSums object
+                for (const subject of subjects) {
+                  weekSums[subject] = {};
+                }
+                // Iterate through the study sessions and accumulate the study duration per subject per week
+                for (const session of sessions) {
+                  const [year, weekNo] = getWeekNumber(session.start); // Get the year and week number of the session
+                  const key = `${year}-W${String(weekNo).padStart(2, '0')}`; // Format the week as 'YYYY-WW'
+                  const subject = session.subject; // Get the subject of the session
+                  // Update the latest week if the current session's week is greater
+                  if (key > latestWeek) {
+                    latestWeek = key;
+                  }
+                  // Initialize study duration for the subject and week if not already present
+                  if (!weekSums[subject][key]) {
+                    weekSums[subject][key] = 0;
+                  }
+                  weekSums[subject][key] += session.duration; // Accumulate the session duration for the subject and week
+                }
+
+                // Iterate through subjects in weekSums object
+                for (const subject in weekSums) {
+                  if (weekSums.hasOwnProperty(subject)) {
+                    // Get the weeks for the current subject
+                    const subjectWeeks = Object.keys(weekSums[subject]);
+                    // Find the most recent week for the current subject
+                    const mostRecentWeek = subjectWeeks.reduce((a, b) => (a > b ? a : b), '');
+                    if (mostRecentWeek === latestWeek) {
+                      // Store the study duration for the most recent week in the array
+                      latestWeekDurations = Object.values(weekSums[subject][latestWeek]);
+                    }
+                  }
+                }
+
+                return latestWeekDurations; // Return the study durations for specific subjects in the most recent week
+              }
+
+              function allocateStudyHours(subjectPriorities, totalHoursThisWeek, hoursLastWeek, averageBreaksLastWeek) {
+                const totalSubjects = subjectPriorities.length;
+                // Calculate total priority to determine the proportion of hours for each subject
+                const totalPriority = subjectPriorities.reduce((acc, priority) => acc + priority, 0);
+
+                // Calculate the proportion of total hours allocated for each subject based on priority
+                const proportionFactors = subjectPriorities.map((priority) => priority / totalPriority);
+
+                // Calculate average study hours considering breaks from the previous week
+                const averageStudyHours = hoursLastWeek.map((hours, index) => {
+                  const adjustedHours = hours + averageBreaksLastWeek[index] * 0.5; // Increase hours for fewer breaks
+                  return adjustedHours / totalSubjects; // Divide by subjects for average
+                });
+
+                // Calculate hours for each subject this week based on proportions and adjusted hours
+                const allocatedHoursThisWeek = proportionFactors.map((proportion, subjectIndex) => {
+                  const totalHoursForSubject = proportion * totalHoursThisWeek;
+                  const additionalHours = totalHoursForSubject - averageStudyHours[subjectIndex];
+                  return averageStudyHours[subjectIndex] + additionalHours;
+                });
+
+                // Check if the sum of allocated hours exceeds total hours
+                const totalAllocatedHours = allocatedHoursThisWeek.reduce((acc, hours) => acc + hours, 0);
+
+                // Adjust allocated hours if the sum exceeds the total hours
+                const difference = totalAllocatedHours - totalHoursThisWeek;
+                const adjustmentFactor = difference / totalSubjects;
+                allocatedHoursThisWeek.forEach((hours, index) => {
+                  allocatedHoursThisWeek[index] = Math.round(hours - adjustmentFactor);
+                  console.log(index);
+                });
+                // Output the adjusted allocated study hours for each subject this week
+                return allocatedHoursThisWeek;
+              }
+
+
+              document.getElementById('calculate').addEventListener('click', function () {
+                let totalHours = document.getElementById("averageHours").value;
+                var priorities = [];
+                let subjectOrder = [];
+                let items = document.getElementById("items").getElementsByTagName("li");
+
+                for (var i = 0; i < items.length; i++) {
+                  var priority = i + 1; // Priority starts from 1 (least priority)
+                  var itemText = items[i].textContent || items[i].innerText;
+                  subjectOrder.push(itemText);
+                  priorities.push(priority);
+                }
+
+                let pauses = [3, 5, 2];
+
+                let val = Object.values(allocateStudyHours(priorities, totalHours, sumDurationByWeek(schedules, subjectOrder), pauses));
+                let table = document.getElementById('calculatedHours');
+
+                function clearTable() {
+                  while (table.firstChild) {
+                    table.removeChild(table.firstChild);
+                  }
+                }
+
+                clearTable();
+
+                for (let i = 0; i < subjectOrder.length; i++) {
+                  const row = table.insertRow(); // Create a new row
+                  const cell1 = row.insertCell(0); // Insert a cell into the row for Column 1
+                  const cell2 = row.insertCell(1); // Insert a cell into the row for Column 2
+                  cell1.textContent = subjectOrder[i]; // Set the content for Column 1
+                  cell2.textContent = val[i]; // Set the content for Column 2
+                }
+              });
+
+              db.collection("users").doc(uid).collection("main-info").doc("creation-date").get()
+                .then((doc) => {
+                  if (doc.exists) {
+                    let val = doc.data();
+                    document.getElementById("points").textContent = val.totalPointsAccumulated;
+                    document.getElementById("level").textContent = val.CurrentLevel;
+                  }
+                })
 
               db.collection("users")
                 .doc(uid)
@@ -51,7 +211,6 @@
                 .then((doc) => {
                   if (doc.exists) {
                     let list = Object.values(doc.data());
-
                     for (const value of list) {
                       db.collection("users").doc(uid).collection("subjects").doc(value).get().then((doc) => {
                         if (doc.exists) {
@@ -61,6 +220,7 @@
                           row.insertCell().textContent = value;
                           row.insertCell().textContent = data.value.hours + ' hours';
                           row.insertCell().textContent = data.value.points + ' points';
+
 
                         } else {
                           console.log("No such document");
@@ -119,10 +279,11 @@
           }
         });
       };
-    });
 
-    window.addEventListener("load", function () {
-      initApp();
+
+      window.addEventListener("load", function () {
+        initApp();
+      });
     });
   </script>
 
@@ -163,6 +324,12 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               <li>
+                <a class="dropdown-item">Points: <span id="points"></span></a>
+              </li>
+              <li>
+                <a class="dropdown-item">Level: <span id="level"></span></a>
+              </li>
+              <li>
                 <a class="dropdown-item" href="login.html">Sign out (<span id="user-email"></span>)</a>
               </li>
             </ul>
@@ -202,16 +369,16 @@
               <tbody></tbody>
             </table>
 
-            <div class="py-5 form">
-              <label for="validationCustom01" class="form-label">Average Number of Hours of Studying for the
-                week</label>
-              <input type="text" class="form-control" id="validationCustom01" required />
+            <div class="py-5 form has-validation">
+              <label for="averageHours" class="form-label">Average Number of Hours of Studying for the week</label>
+              <input type="text" id="averageHours" class="form-control is-invalid" required />
+              <div class="invalid-feedback">Please enter the average number of hours.</div>
               <div class="valid-feedback">Looks good!</div>
             </div>
 
-            <button class="btn btn-primary">Calculate</button>
+            <button id="calculate" class="btn btn-primary">Calculate</button>
 
-            <table class="py-5 table">
+            <table class="py-5 table" id="calculatedHours">
               <thead>
                 <tr>
                   <th scope="col">Subject</th>
@@ -223,12 +390,12 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
           </div>
         </div>
       </div>
     </div>
-    <button type="button" class="m-5 btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    <button type="button" id="divideTime" class="m-5 btn btn-primary" data-bs-toggle="modal"
+      data-bs-target="#exampleModal">
       Divide your study time
     </button>
     <div id="calendar"></div>
@@ -236,7 +403,6 @@
 
 
   <script src="js/calendar.js" defer></script>
-
   <script>
     var el = document.getElementById("items");
     var sortable = Sortable.create(el);

@@ -1,17 +1,12 @@
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function getRandomDate(start, end) {
-  return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
-}
+/* eslint-disable no-undef */
+/*
 
 const sessions = [];
 
 for (let i = 0; i < 10; i++) {
   let subjects = ['maths', 'phy', 'comp sci', 'eng']
   const subject = subjects[getRandomInt(0, 3)]
-  const startTime = getRandomDate(new Date('2023-10-01'), new Date('2023-10-20'));
+  const startTime = getRandomDate(new Date('2023-10-29'), new Date('2023-10-31'));
   const duration = getRandomInt(0, 100);
 
   sessions.push({
@@ -38,31 +33,46 @@ function getWeekNumber(d) {
 
 function sumDurationByWeek(sessions) {
   const weekSums = {};
-  let subjects = ['maths', 'phy', 'comp sci', 'eng'];
+  subjects = ['maths', 'eng', 'phy', 'comp sci'];
 
   for (const subject of subjects) {
-    weekSums[subject] = {};
+    weekSums[subject] = 0; // Initialize weekly sum to 0 for each subject
   }
+
+  let mostRecentWeek = -1; // Variable to keep track of the most recent week number
+  const currentDate = new Date();
 
   for (const session of sessions) {
     const [year, weekNo] = getWeekNumber(session.start_time);
-    const key = `${year}-W${String(weekNo).padStart(2, '0')}`;
 
-    const subject = session.subject;
+    // Check if the session is from the current year and week
+    if (year === currentDate.getUTCFullYear() && weekNo === getWeekNumber(currentDate)[1]) {
+      const subject = session.subject;
+      weekSums[subject] += session.duration; // Add session duration to the weekly sum for the subject
 
-    if (!weekSums[subject][key]) {
-      weekSums[subject][key] = 0;
+      // Update the most recent week number if the current session is from a later week
+      if (weekNo > mostRecentWeek) {
+        mostRecentWeek = weekNo;
+      }
     }
-
-    weekSums[subject][key] += session.duration;
   }
 
-  return weekSums;
+  const mostRecentWeekKey = `${currentDate.getUTCFullYear()}-W${String(mostRecentWeek).padStart(2, '0')}`;
+  const result = {};
+
+  // Store the weekly sums only for the most recent week
+  for (const subject of subjects) {
+    result[subject] = weekSums[subject];
+  }
+
+  return {
+    [mostRecentWeekKey]: result
+  };
 }
+
 
 const result = sumDurationByWeek(sessions);
 console.log(result);
-
 
 function allocateStudyHours(subjectPriorities, totalHoursThisWeek, hoursLastWeek, averageBreaksLastWeek) {
   const totalSubjects = subjectPriorities.length;
@@ -103,12 +113,11 @@ function allocateStudyHours(subjectPriorities, totalHoursThisWeek, hoursLastWeek
   return allocatedHoursThisWeek;
 }
 
-
 // Example usage
-const subjectPriorities = [];
+const subjectPriorities = [1,2,4,3];
 const totalHoursThisWeek = 30;
-const hoursLastWeek = [];
-const averageBreaksLastWeek = [];
+const hoursLastWeek = [1,2,3,4];
+const averageBreaksLastWeek = [2,3,1,4];
 
 const allocatedHoursThisWeek = allocateStudyHours(
   subjectPriorities,
@@ -117,3 +126,4 @@ const allocatedHoursThisWeek = allocateStudyHours(
   averageBreaksLastWeek,
 );
 console.log("Allocated study hours for this week:", allocatedHoursThisWeek);
+*/

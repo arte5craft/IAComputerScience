@@ -1,8 +1,0 @@
-# See https:#eslint.org/docs/user-guide/configuring
-parserOptions:
-  ecmaVersion: "latest"
-env:
-  es2022: true
-  browser: true
-plugins: [html]
-extends: eslint:recommended
