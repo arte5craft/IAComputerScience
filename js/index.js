@@ -6,6 +6,7 @@ var formDataObject;
 let pauseNum = 0;
 let elapsedMinutes = 0;
 let progressPosition = 0;
+let progressInterval;
 
 const form = document.querySelector(".studyForm");
 const timerDisplay = document.getElementById("timer");
@@ -46,7 +47,6 @@ function calculateLevel(points) {
   return "No level"; // If points are less than the lowest level threshold
 }
 
-
 // Function to display the remaining time in the timer
 function displayTimeLeft(seconds) {
   // Calculate hours, minutes, and remaining seconds from total seconds
@@ -56,6 +56,23 @@ function displayTimeLeft(seconds) {
   // Format the time and display it in the timer display element
   const display = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${remainderSeconds.toString().padStart(2, "0")}`;
   timerDisplay.textContent = display;
+}
+
+// Function to update the progress bar and text
+function updateProgress() {
+  // Calculate elapsed time and update progress bar position and text
+  elapsedMinutes++;
+  const percentage = (elapsedMinutes / totalMinutes) * 100;
+  progressPosition = percentage * 3.6; // Calculate new progress bar position
+  const progress = document.getElementById("prog");
+  const progressText = document.getElementById("progress-text");
+  progress.style.transform = `rotate(-${progressPosition}deg)`;
+  progressText.textContent = `${percentage.toFixed(2)}%`;
+
+  // Clear interval when elapsed time equals total time
+  if (elapsedMinutes >= totalMinutes) {
+    clearInterval(progressInterval);
+  }
 }
 
 // Function to start the timer with given seconds and optional resume flag
@@ -75,23 +92,7 @@ function startTimer(seconds, resume = false) {
     elapsedMinutes = 0; // Reset elapsed time to 0 when starting the timer
   }
 
-  // Function to update the progress bar and text
-  function updateProgress() {
-    // Calculate elapsed time and update progress bar position and text
-    elapsedMinutes++;
-    const percentage = (elapsedMinutes / totalMinutes) * 100;
-    progressPosition = percentage * 3.6; // Calculate new progress bar position
-    const progress = document.getElementById("prog");
-    progress.style.transform = `rotate(-${progressPosition}deg)`;
-    progressText.textContent = `${percentage.toFixed(2)}%`;
-
-    // Clear interval when elapsed time equals total time
-    if (elapsedMinutes >= totalMinutes) {
-      clearInterval(progressInterval);
-    }
-  }
-
-  const progressInterval = setInterval(updateProgress, 1000);
+  progressInterval = setInterval(updateProgress, 1000);
   // Start countdown and update timer display every second
   if (timerRunning) return;
   clearInterval(countdown);

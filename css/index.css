@@ -178,6 +178,13 @@ button.stop_button {
   background-color: #3498db;
 }
 
+#progress-text {
+  position: absolute;
+  width: 300px;
+  text-align: center;
+  top: -1.5rem;
+}
+
 .dot {
   position: absolute;
   top: 3;
