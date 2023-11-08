@@ -2,7 +2,7 @@
 
 <head>
   <meta charset="utf-8" />
-  <link rel="stylesheet" href="index.css" />
+  <link rel="stylesheet" href="css/index.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous" />
@@ -22,149 +22,161 @@
       messagingSenderId: "432604412975",
       appId: "1:432604412975:web:954d2832af5279c6d01ada",
     };
-
     var uid;
     var app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     initApp = function () {
-      firebase.auth().onAuthStateChanged(
-        function (user) {
-          if (user) {
-            // User is signed in.
-            var displayName = user.displayName;
-            var email = user.email;
-            var emailVerified = user.emailVerified;
-            var photoURL = user.photoURL;
-            uid = user.uid;
-            var creationTimestamp = user.metadata.creationTime;
-            var phoneNumber = user.phoneNumber;
-            var providerData = user.providerData;
-            user.getIdToken().then(function (accessToken) {
-              document.getElementById("user-name").textContent = displayName;
-              document.getElementById("user-email").textContent = email;
-              //document.getElementById("").textContent = ;
-              db.collection("users").doc(uid).collection("main-info").doc('creation-date').set({creationDate: creationTimestamp, totalPointsAccumulated: 0, CurrentLevel: 0});
+      // Firebase authentication state change listener
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (user) {
+          // User is signed in.
 
-              db.collection("users")
-                .doc(uid)
-                .collection("schedules")
-                .get()
-                .then((docs) => {
-                  docs.forEach((doc) => {
-                    // add firebase data to a table after retrieval
-                    let data = doc.data();
-                    let val = [
-                      data.subject,
-                      data.stime + "-" + data.ftime,
-                      data.priority,
-                      data.progress,
-                      data.quality,
-                    ];
-                  });
+          // Get user information
+          var displayName = user.displayName; // User's display name
+          var email = user.email; // User's email address
+          var emailVerified = user.emailVerified; // Whether the user's email is verified
+          var photoURL = user.photoURL; // User's profile photo URL
+          var uid = user.uid; // User's unique ID
+          var creationTimestamp = user.metadata.creationTime; // Account creation timestamp
+          var phoneNumber = user.phoneNumber; // User's phone number (if available)
+          var providerData = user.providerData; // Information about the user's identity providers
+
+          // Get the user's access token for authentication
+          user.getIdToken().then(function (accessToken) {
+            // Update the user interface with user information
+            document.getElementById("user-name").textContent = displayName; // Update user's display name
+            document.getElementById("user-email").textContent = email; // Update user's email address
+            //document.getElementById("").textContent = ;
+
+            db.collection("users")
+              .doc(uid)
+              .collection("schedules")
+              .get()
+              .then((docs) => {
+                docs.forEach((doc) => {
+                  // add firebase data to a table after retrieval
+                  let data = doc.data();
+                  let val = [
+                    data.subject,
+                    data.stime + "-" + data.ftime,
+                    data.priority,
+                    data.progress,
+                    data.quality,
+                  ];
                 });
-
-              var options = [];
-              db.collection("users")
-                .doc(uid)
-                .collection("subjects")
-                .doc("list")
-                .get()
-                .then((doc) => {
-                  if (doc.exists) {
-                    options = Object.values(doc.data());
-                    var select = ["Choose a Subject", ...options]
-                      .map((op) => `<option value="${op}">${op}</option>`)
-                      .join("");
-                    document.getElementById("subjects-form").innerHTML = select;
-                  }
-                })
-                .catch((error) => {
-                  notify("text-bg-danger", "Error getting document: ", error);
-                });
-
-              $("#addSubject").click(function () {
-                var value = $("#subjectName").val();
-                var element = $("<option></option>").text(value);
-                if (options.includes(value) == false) {
-                  $("#subjects-form").append(element);
-                  options.push(value);
-                  const obj = Object.assign({}, options);
-                  var dataObj = {
-                    value: {
-                      hours: 0,
-                      points: 0,
-                      pauses: 0,
-                      priority: 0
-                    }
-                  }
-
-                  db.collection("users")
-                    .doc(uid)
-                    .collection("subjects")
-                    .doc(value)
-                    .set(dataObj)
-                    .then(() => {
-                      notify("text-bg-success", "File created");
-                    })
-                    .catch((error) => {
-                      console.error("Error adding document: ", error);
-                    });
-
-                  db.collection("users")
-                    .doc(uid)
-                    .collection("subjects")
-                    .doc("list")
-                    .set(obj)
-                    .then(() => {
-                      notify("text-bg-success", "Subject saved");
-                    })
-                    .catch((error) => {
-                      console.error("Error adding document: ", error);
-                    });
-                } else {
-                  notify("text-bg-danger", "already exists");
-                }
               });
 
-              $("#deleteSubject").click(function () {
-                var value = $("#subjectName").val();
-                var element = $("<option></option>").text(value);
-                $("#tbody tr").filter(function () {
-                  $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-                });
-                if (options.includes(value) == true) {
-                  $("option[value='" + value + "'").remove();
-                  options.splice(options.indexOf(value), 1);
-                  const obj = Object.assign({}, options);
-                  $("#addSubject").attr("disabled", false);
+            var options = [];
+            db.collection("users")
+              .doc(uid)
+              .collection("subjects")
+              .doc("list")
+              .get()
+              .then((doc) => {
+                if (doc.exists) {
+                  options = Object.values(doc.data());
+                  var select = ["Choose a Subject", ...options]
+                    .map((op) => `<option value="${op}">${op}</option>`)
+                    .join("");
+                  document.getElementById("subjects-form").innerHTML = select;
+                }
+              })
+              .catch((error) => {
+                notify("text-bg-danger", "Error getting document: ", error);
+              });
 
-                  db.collection("users").doc(uid).collection("subjects").doc(value).delete().then(() => {
-                    console.log("doc successfully deleted!");
-                  }).catch((error) => {
-                    console.log("Error removing doc: ", error);
+            $("#addSubject").click(function () {
+              var value = $("#subjectName").val();
+              var element = $("<option></option>").text(value);
+              if (options.includes(value) == false) {
+                $("#subjects-form").append(element);
+                options.push(value);
+                const obj = Object.assign({}, options);
+                var dataObj = {
+                  value: {
+                    hours: 0,
+                    points: 0,
+                    pauses: 0,
+                    priority: 0
+                  }
+                }
+
+                db.collection("users")
+                  .doc(uid)
+                  .collection("subjects")
+                  .doc(value)
+                  .set(dataObj)
+                  .then(() => {
+                    notify("text-bg-success", "File created");
+                  })
+                  .catch((error) => {
+                    console.error("Error adding document: ", error);
                   });
 
-                  db.collection("users")
-                    .doc(uid)
-                    .collection("subjects")
-                    .doc("list")
-                    .set(obj)
-                    .then(() => {
-                      notify("text-bg-success", "Subject Deleted");
-                    })
-                    .catch((error) => {
-                      console.error("Error adding document: ", error);
-                    });
-                } else {
-                  notify("text-bg-danger", "already exists");
-                }
-              });
+                db.collection("users")
+                  .doc(uid)
+                  .collection("subjects")
+                  .doc("list")
+                  .set(obj)
+                  .then(() => {
+                    notify("text-bg-success", "Subject saved");
+                  })
+                  .catch((error) => {
+                    console.error("Error adding document: ", error);
+                  });
+              } else {
+                notify("text-bg-danger", "already exists");
+              }
             });
-          } else {
-            // User is signed out.
-            document.location.href = "./login.html";
-          }
-        },
+
+            db.collection("users").doc(uid).collection("main-info").doc("creation-date").get()
+              .then((doc) => {
+                if (doc.exists) {
+                  let val = doc.data();
+                  document.getElementById("points").textContent = val.totalPointsAccumulated;
+                  document.getElementById("level").textContent = val.CurrentLevel;
+                }
+              })
+
+            $("#deleteSubject").click(function () {
+              var value = $("#subjectName").val();
+              var element = $("<option></option>").text(value);
+              $("#tbody tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+              });
+              if (options.includes(value) == true) {
+                $("option[value='" + value + "'").remove();
+                options.splice(options.indexOf(value), 1);
+                const obj = Object.assign({}, options);
+                $("#addSubject").attr("disabled", false);
+
+                db.collection("users").doc(uid).collection("subjects").doc(value).delete().then(() => {
+                  console.log("doc successfully deleted!");
+                }).catch((error) => {
+                  console.log("Error removing doc: ", error);
+                });
+
+                db.collection("users")
+                  .doc(uid)
+                  .collection("subjects")
+                  .doc("list")
+                  .set(obj)
+                  .then(() => {
+                    notify("text-bg-success", "Subject Deleted");
+                  })
+                  .catch((error) => {
+                    console.error("Error adding document: ", error);
+                  });
+              } else {
+                notify("text-bg-danger", "already exists");
+              }
+            });
+          });
+        } else {
+          // User is signed out.
+          document.location.href = "./login.html";
+        }
+      },
         function (error) {
           notify("text-bg-danger", error);
         },
@@ -178,35 +190,36 @@
 </head>
 
 <body>
+  <!-- Bootstrap Navbar Component -->
   <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
     <div class="container-fluid">
+      <!-- Bootstrap Navbar Brand -->
       <a class="navbar-brand" href="#">Productivity Pro</a>
+      <!-- Bootstrap Navbar Toggler Button for Responsive Design -->
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+        <span class="navbar-toggler-icon"></span></button>
+      <!-- Bootstrap Navbar Collapsible Content -->
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <!-- Bootstrap Navbar Left-aligned Links -->
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Study Session</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="calendar.html">Weekly Plan</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="notes.html">Notes</a>
-          </li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="#">Study Session</a></li>
+          <li class="nav-item"><a class="nav-link" href="calendar.html">Weekly Plan</a></li>
+          <li class="nav-item"><a class="nav-link" href="notes.html">Notes</a></li>
+          <li class="nav-item"><a class="nav-link" href="Analysis.html">Statistics</a></li>
         </ul>
+        <!-- Bootstrap Navbar Right-aligned Dropdown Menu -->
         <ul class="navbar-nav mb-2 mb-lg-0">
           <li class="nav-item dropdown">
-            <a id="user-name" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-              aria-expanded="false">
+            <!-- Bootstrap Dropdown Toggle Link -->
+            <a id="user-name" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               Username
             </a>
+            <!-- Bootstrap Dropdown Menu Content -->
             <ul class="dropdown-menu dropdown-menu-end">
-              <li>
-                <a class="dropdown-item" href="login.html">Sign out (<span id="user-email"></span>)</a>
-              </li>
+              <li><a class="dropdown-item">Points: <span id="points"></span></a></li>
+              <li><a class="dropdown-item">Level: <span id="level"></span></a></li>
+              <li><a class="dropdown-item" href="login.html">Sign out (<span id="user-email"></span>)</a></li>
             </ul>
           </li>
         </ul>
@@ -227,7 +240,7 @@
             <div class="row justify-content-around py-3">
               <div class="col">
                 <input id="subjectName" name="subjectName" type="text" class="form-control" placeholder="Subject name"
-                  aria-label="subject name" autocomplete="off" />
+                  aria-label="subject name" autocomplete="off" required />
               </div>
               <div class="col">
                 <ul class="list-inline m-0">
@@ -253,30 +266,35 @@
 
           <div class="row">
             <div class="col-md-3">
+              <!-- This div contains an input field for entering hours -->
               <div class="input-group mb-3">
-                <input name="hours" type="number" id="hours" class="form-control" placeholder="0" />
+                <!-- Input field for hours. -->
+                <input name="hours" type="number" id="hours" class="form-control" value="0" required />
                 <span class="input-group-text">Hours</span>
               </div>
             </div>
 
             <div class="col-md-3">
+              <!-- This div contains an input field for entering minutes -->
               <div class="input-group mb-3">
-                <input name="minutes" type="number" id="minutes" class="form-control" placeholder="0" />
+                <!-- Input field for minutes. -->
+                <input name="minutes" type="number" id="minutes" class="form-control" placeholder="0" required />
                 <span class="input-group-text">Minutes</span>
               </div>
             </div>
+
 
             <div class="mb-3">
               <label for="validationTextarea" class="form-label">Goals to be accomplished</label>
               <textarea name="goals" class="form-control" id="validationTextarea" placeholder="Goals"
                 required></textarea>
-              <div class="invalid-feedback">Please enter a message in the textarea.</div>
+              <div class="invalid-feedback">Please enter your goals to be accomplished</div>
             </div>
 
             <div class="mb-3">
               <label for="inputPriority" class="form-label">Priority</label>
-              <select name="priority" id="inputPriority" class="form-select">
-                <option selected>Choose...</option>
+              <select name="priority" id="inputPriority" class="form-select" required>
+                <option value="" disabled selected>Choose a priority</option>
                 <option>High</option>
                 <option>Moderate</option>
                 <option>Low</option>
@@ -285,39 +303,47 @@
           </div>
 
           <div class="col-12 p-5">
-            <button id="submitBtn" class="btn btn-primary" type="submit">Create the timer</button>
+            <button id="submitBtn" class="btn btn-primary">Create the timer</button>
           </div>
         </form>
       </div>
       <hr />
     </div>
 
-
-
-    <div style="width: calc(100vw - 500px)" class="position-absolute top-50 end-0 d-flex flex-column timer">
-      <div>
-        <div class="progress-container">
-          <div class="prog" id="prog">
-            <div class="dot"></div>
+    <div class="container-fluid position-absolute top-50 start-45 translate-middle-y">
+      <div style="width: calc(100vw - 500px)" class="container d-flex flex-column timer shift-right">
+        <div class="d-flex flex-column align-items-center">
+          <div class="progress-container">
+            <!-- Progress bar container to indicate the time completed -->
+            <div class="prog" id="prog">
+              <div class="dot"></div>
+            </div>
+            <!-- Timer text displaying elapsed time -->
+            <div class="text" id="timer">00:00:00</div>
+            <!-- Container for displaying progress percentage -->
+            <div id="progress-text">0%</div>
           </div>
-          <div class="text" id="progress-text">0%</div>
-      </div>
-        <div id="timer">00:00:00</div>
-      </div>
+        </div>
 
-      <div id="controls">
-        <button class="btn btn-primary" id="pause">Pause</button>
-        <button class="btn btn-primary" id="resume">Resume</button>
-        <button class="btn btn-primary" id="clear">Clear</button>
+        <!-- Controls section with buttons for pause, resume, and clear actions -->
+        <div id="controls" class="text-center mt-3">
+          <!-- Button to pause the timer -->
+          <button class="btn btn-primary" id="pause">Pause</button>
+          <!-- Button to resume the timer -->
+          <button class="btn btn-primary" id="resume">Resume</button>
+          <!-- Button to clear the timer or reset it to initial state -->
+          <button class="btn btn-primary" id="clear">Clear</button>
+        </div>
       </div>
     </div>
 
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+
+    <div class="modal fade" id="sessionSummary" tabindex="-1" role="dialog" aria-labelledby="sessionSummaryLabel"
       aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Completed!</h5>
+            <h5 class="modal-title" id="sessionSummaryLabel">Completed!</h5>
             <button type="button" class="btn btn-primary close" data-bs-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -330,7 +356,7 @@
               </tr>
               <tr>
                 <td>Points earned</td>
-                <td id="points"></td>
+                <td id="Points"></td>
               </tr>
               <tr>
                 <td>Number of Pauses</td>
