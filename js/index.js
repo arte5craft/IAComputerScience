@@ -260,7 +260,6 @@ pauseButton.addEventListener("click", () => {
 resumeButton.addEventListener("click", () => {
   // Resume the timer with the remaining time and enable progress updates
   startTimer(timeLeft, true);
-  progressInterval = setInterval(updateProgress, 1000);
 });
 
 // Add an event listener to the "clearButton" element when it is clicked
